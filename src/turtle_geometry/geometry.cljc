@@ -1,5 +1,5 @@
 (ns turtle-geometry.geometry
-  "transforms and transformables"
+  "transforms and transformables using complex numbers"
   (:require [turtle-geometry.protocols :as p]))
 
 (defrecord Point [z])
