@@ -13,9 +13,6 @@
   (reciprocal [z])
   (one? [x]))
 
-(defprotocol Angle
-  (unit [angle]))
-
 (defprotocol Conjugate
   (conjugate [x]))
 

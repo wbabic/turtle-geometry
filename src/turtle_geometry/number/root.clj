@@ -177,8 +177,7 @@
                         (apply collect-roots roots)
                         (apply collect-roots (:roots y)))))))
   p/Multiplication
-  (p/multiply [x y]
-    ;; assuming y is also a rational root
+  (p/multiply [{:keys [root ratio]} y]
     (reduce p/add
      (mult-by-ratio ratio y)
      (map #(mult-by-root % y) roots)))
@@ -203,9 +202,14 @@
 
 (defn rat-roots
   [num & roots]
-  (->RationalRoot num roots))
-
-(def rrt5 (rat-roots 0 rt5))
+  (cond
+    (nil? roots)
+    num
+    (and (zero? num)
+         (= 1 (count roots)))
+    (first roots)
+    :else
+    (->RationalRoot num roots)))
 
 (defn reduce-root [base multiplier]
   (let [lsf (largest-square-factor base)]
@@ -218,15 +222,16 @@
   "multiply x by a ratio
   x can be a number, a root, or a rat-root"
   [ratio x]
-  (cond
-    (number? x) (* ratio x)
+  (if (zero? ratio) 0
+      (cond
+        (number? x) (* ratio x)
 
-    (instance? Root x)
-    (root (:base x) (* (:multiplier x) ratio))
+        (instance? Root x)
+        (root (:base x) (* (:multiplier x) ratio))
 
-    (instance? RationalRoot x)
-    (apply rat-roots (* ratio (:ratio x))
-           (map #(mult-by-ratio ratio %) (:roots x)))))
+        (instance? RationalRoot x)
+        (apply rat-roots (* ratio (:ratio x))
+               (map #(mult-by-ratio ratio %) (:roots x))))))
 
 (defn mult-by-root
   "multiply x by a pure root rt"
@@ -265,6 +270,56 @@
 
   ;; adding two roots does not yet have a reciprocal
   (p/add rt5 omega)
-  ;;=>
 
+  (rat-roots 0 rt5)
+  (rat-roots 1)
+  (rat-roots 1 rt5)
+
+  (let [x1 (root 2 (/ 2))
+        y1 (p/negative x1)
+        x2 (/ 2)
+        y2 (root 3 (/ 2))
+        x3 (p/add (p/multiply x1 x2)
+                  (p/negative (p/multiply y1 y2)))
+        y3 (p/add (p/multiply x1 y2)
+                  (p/multiply x2 y1))]
+    [x3 y3])
+  [#turtle_geometry.number.root.RationalRoot
+   {:ratio 0,
+    :roots (#turtle_geometry.number.root.Root
+            {:base 2, :multiplier 1/4}
+            #turtle_geometry.number.root.Root
+            {:base 6, :multiplier 1/4})}
+   #turtle_geometry.number.root.RationalRoot
+   {:ratio 0,
+    :roots (#turtle_geometry.number.root.Root
+            {:base 6, :multiplier 1/4}
+            #turtle_geometry.number.root.Root
+            {:base 2, :multiplier -1/4})}]
+
+  (let [base 0
+        r1 (root 6 (/ 4))
+        r2 (root 2 (/ 4))
+        r (rat-roots 0 r1 r2)]
+    [(mult-by-ratio (:ratio r) r)
+     (p/multiply r1 r)
+     (p/multiply r2 r)])
+  [0
+   #turtle_geometry.number.root.RationalRoot
+   {:ratio 3/8,
+    :roots (#turtle_geometry.number.root.Root
+            {:base 3, :multiplier 1/8})}
+   #turtle_geometry.number.root.RationalRoot
+   {:ratio 1/8,
+    :roots (#turtle_geometry.number.root.Root
+            {:base 3, :multiplier 1/8})}]
+
+  (let [base 0
+        r1 (root 6 (/ 4))
+        r2 (root 2 (/ 4))
+        r (rat-roots 0 r1 r2)]
+    (p/multiply r r))
+  #turtle_geometry.number.root.RationalRoot
+  {:ratio 1/2,
+   :roots (#turtle_geometry.number.root.Root{:base 3, :multiplier 1/4})}
   )
