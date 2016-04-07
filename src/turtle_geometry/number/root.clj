@@ -53,8 +53,14 @@
 (defn root
   ([base] (root base 1))
   ([base multiplier]
-   (if (zero? multiplier)
+   (cond
+     (or (zero? multiplier) (zero? base))
      0
+
+     (p/one? base)
+     multiplier
+
+     :else
      (->Root base multiplier))))
 
 (def rt2 (root 2))
@@ -67,6 +73,7 @@
   ignoring zero multipliers"
   ([] nil)
   ([& roots]
+   (assert (every? #(instance? Root %) roots))
    (let [reduced (reduce
                   (fn [result root]
                     (let [base (:base root)
@@ -202,14 +209,16 @@
 
 (defn rat-roots
   [num & roots]
-  (cond
-    (nil? roots)
-    num
-    (and (zero? num)
-         (= 1 (count roots)))
-    (first roots)
-    :else
-    (->RationalRoot num roots)))
+  (let [roots (filter (comp not p/zero?) roots)
+        roots (apply collect-roots roots)]
+    (cond
+      (empty? roots)
+      num
+      (and (zero? num)
+           (= 1 (count roots)))
+      (first roots)
+      :else
+      (->RationalRoot num roots))))
 
 (defn reduce-root [base multiplier]
   (let [lsf (largest-square-factor base)]
@@ -269,36 +278,9 @@
     (p/zero? (p/add w (p/negative w))))
   ;;=> true
 
-  ;; multiply by a root
-  (mult-by-root (root 5) (/ 2))
-  (mult-by-root (root 5) (root 5))
-  (mult-by-root (root 5) (rat-roots (/ 2) (root 5)))
-  ;;=>
-  #turtle_geometry.number.root.RationalRoot
-  {:ratio 5,
-   :roots (#turtle_geometry.number.root.Root
-           {:base 5, :multiplier 1/2})}
-
-  (mult-by-root (root 5) (rat-roots (/ 2) (root 5) (root 2)))
-  ;;=>
-  #turtle_geometry.number.root.RationalRoot
-  {:ratio 5,
-   :roots (#turtle_geometry.number.root.Root
-           {:base 5, :multiplier 1/2}
-           #turtle_geometry.number.root.Root
-           {:base 10, :multiplier 1})}
-  (p/equals?
-   (rat-roots 5
-              (root 5 (/ 2))
-              (root 10))
-   (mult-by-root (root 5)
-                 (rat-roots (/ 2) (root 5) (root 2))))
-
   ;; adding two roots does not yet have a reciprocal
   (p/add rt5 omega)
 
-  (rat-roots 0 rt5)
-  (rat-roots 1)
   (rat-roots 1 rt5)
   (p/equals?
    (rat-roots 5

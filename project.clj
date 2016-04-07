@@ -19,7 +19,13 @@
                  [ring/ring-core "1.4.0"]
                  [clj-time "0.9.0"]
 
-                 [fipp "0.6.4"]]
+                 [fipp "0.6.4"]
+                 [com.gfredericks/exact "0.1.8"]
+                 [prismatic/schema "1.1.0"]]
+
+  :profiles
+  {:dev
+   {:dependencies [[org.clojure/test.check "0.9.0"]]}}
 
   :plugins [[lein-cljsbuild "1.1.3"]
             [lein-figwheel "0.5.2"
