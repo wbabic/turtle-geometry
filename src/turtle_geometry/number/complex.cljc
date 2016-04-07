@@ -16,10 +16,12 @@
 
   p/Multiplication
   (p/multiply [_ w]
-    (->Complex (p/add (p/multiply x (:x w))
-                      (p/negative (p/multiply y (:y w))))
-               (p/add (p/multiply x (:y w))
-                      (p/multiply y (:x w)))))
+    (if (number? w)
+      (->Complex (p/multiply x w) (p/multiply y w))
+      (->Complex (p/add (p/multiply x (:x w))
+                        (p/negative (p/multiply y (:y w))))
+                 (p/add (p/multiply x (:y w))
+                        (p/multiply y (:x w))))))
   (p/reciprocal [_]
     (let [r (+ (* x x) (* y y))]
       (->Complex (/ x r)
@@ -84,6 +86,11 @@
     (if (<= a 180)
       (unit->complex a)
       (p/multiply (p/negative one) (unit (- a 180))))))
+
+(extend-protocol p/Unit
+  Number
+  (p/unit [angle-in-degrees]
+    (unit angle-in-degrees)))
 
 (comment
   (require '[turtle-geometry.number.complex] :reload)

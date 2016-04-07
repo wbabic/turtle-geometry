@@ -2,8 +2,8 @@
   "transforms and transformables using complex numbers"
   (:require [turtle-geometry.protocols :as p]))
 
-(defrecord Point [z])
-(defrecord Vector [z])
+(defrecord Point [point])
+(defrecord Vector [vector])
 (defrecord Orientation [keyword])
 
 ;; geometric transformations as data
@@ -26,7 +26,7 @@
   (p/transform-fn [rotation]
     #(p/multiply % (p/unit (:angle rotation)))))
 
-(defrecord Translation [vecctor]
+(defrecord Translation [vector]
   p/Transform
   (p/inverse [translation] (->Translation (p/negative (:v translation))))
   (p/transform-fn [translation]
@@ -63,15 +63,13 @@
 (extend-protocol p/Transformable
   Vector
   (p/transform [vector transformation]
-    (let [f (p/transform-fn transformation)]
-      (condp instance? transformation
-        Translation
-        ;; translation does not effect vectors
-        vector
-        (update-in vector [:z] (p/transform-fn transformation)))))
+    (condp instance? transformation
+      Translation
+      vector
+      (update-in vector [:vector] (p/transform-fn transformation))))
   Point
   (p/transform [point transformation]
-    (update-in point [:z] (p/transform-fn transformation)))
+    (update-in point [:point] (p/transform-fn transformation)))
 
   Orientation
   (p/transform [orientation transformation]
@@ -90,4 +88,7 @@
 (comment
   (require '[turtle-geometry.geometry] :reload)
   (in-ns 'turtle-geometry.geometry)
+
+  (let [t (g/->Translation n/one)]
+    (p/transform (point n/zero) t))
   )

@@ -12,8 +12,8 @@
                #(p/transform %
                              (g/->Translation
                               (p/add
-                               position
-                               (p/multiply heading d))))))
+                               (:point position)
+                               (p/multiply (:vector heading) d))))))
   (turn [turtle a]
     (update-in turtle [:heading]
                #(p/transform %
@@ -23,7 +23,7 @@
                #(p/transform %
                            (g/->Dilation r))))
   (reflect [turtle]
-    (update-in turtle [:orientation :keyword]
+    (update-in turtle [:orientation]
                #(p/transform %
                            (g/->Reflection)))))
 

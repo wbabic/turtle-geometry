@@ -22,6 +22,9 @@
 (defprotocol Evaluate
   (evaluate [x]))
 
+(defprotocol Unit
+  (unit [theta]))
+
 ;; turtle
 (defprotocol Turtle
   (move [turtle d])
