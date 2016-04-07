@@ -1,4 +1,5 @@
 (ns turtle-geometry.turtle
+  "A transformable turtle making use of geometric transformations"
   (:require
    [turtle-geometry.protocols :as p]
    [turtle-geometry.geometry :as g]))
@@ -16,16 +17,13 @@
                                (p/multiply (:vector heading) d))))))
   (turn [turtle a]
     (update-in turtle [:heading]
-               #(p/transform %
-                           (g/->Rotation a))))
+               #(p/transform % (g/->Rotation a))))
   (resize [turtle r]
     (update-in turtle [:heading]
-               #(p/transform %
-                           (g/->Dilation r))))
+               #(p/transform % (g/->Dilation r))))
   (reflect [turtle]
     (update-in turtle [:orientation]
-               #(p/transform %
-                           (g/->Reflection)))))
+               #(p/transform % (g/->Reflection)))))
 
 (extend-protocol p/Transformable
   Turtle
@@ -34,8 +32,3 @@
         (update-in [:position]    #(p/transform % transformation))
         (update-in [:heading]     #(p/transform % transformation))
         (update-in [:orientation] #(p/transform % transformation)))))
-
-(comment
-  (require '[turtle-geometry.turtle] :reload)
-  (in-ns 'turtle-geometry.turtle)
-  )

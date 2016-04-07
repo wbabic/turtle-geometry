@@ -1,4 +1,6 @@
 (ns turtle-geometry.turtle.exact
+  "a turtle implementation using complex numbers and rational roots
+  providing exact representation for rotations in multiples of 15 degrees"
   (:refer-clojure :exclude [vector])
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
@@ -42,11 +44,12 @@
   (in-ns 'turtle-geometry.turtle.exact)
   (n/unit 15)
 
+  (p/equals? n/one
+             (reduce multiply nil))
   (p/equals? n/i
              (reduce
-                  p/multiply
-                  n/one
-                  (repeat 6 (n/unit 15))))
+              multiply
+              (repeat 6 (n/unit 15))))
   (p/equals? n/one (apply multiply (repeat 4 n/i)))
   (p/equals? n/one (apply multiply (repeat 24 (p/unit 15))))
   ;;=> true

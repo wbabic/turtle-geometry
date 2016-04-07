@@ -1,24 +1,18 @@
 (ns turtle-geometry.geometry
-  "transforms and transformables using complex numbers"
+  "basic geometric objects and transforms provide functions of complex number"
   (:require [turtle-geometry.protocols :as p]))
 
+;; primitive geometric objects
 (defrecord Point [point])
 (defrecord Vector [vector])
 (defrecord Orientation [keyword])
 
-;; geometric transformations as data
-;; using complex numbers
-(defrecord Reflection []
+;; primitive geometric transforms
+(defrecord Translation [vector]
   p/Transform
-  (p/inverse [reflection] reflection)
-  (p/transform-fn [reflection]
-    #(p/conjugate %)))
-
-(defrecord Dilation [ratio]
-  p/Transform
-  (p/inverse [{:keys [ratio]}] (->Dilation (/ ratio)))
-  (p/transform-fn [{:keys [ratio]}]
-    #(p/multiply % ratio)))
+  (p/inverse [translation] (->Translation (p/negative (:v translation))))
+  (p/transform-fn [translation]
+    #(p/add % (:vector translation))))
 
 (defrecord Rotation [angle]
   p/Transform
@@ -26,11 +20,11 @@
   (p/transform-fn [rotation]
     #(p/multiply % (p/unit (:angle rotation)))))
 
-(defrecord Translation [vector]
+(defrecord Dilation [ratio]
   p/Transform
-  (p/inverse [translation] (->Translation (p/negative (:v translation))))
-  (p/transform-fn [translation]
-    #(p/add % (:vector translation))))
+  (p/inverse [{:keys [ratio]}] (->Dilation (/ ratio)))
+  (p/transform-fn [{:keys [ratio]}]
+    #(p/multiply % ratio)))
 
 (defrecord Affine [a b]
   p/Transform
@@ -41,6 +35,12 @@
   (p/transform-fn [{:keys [a b]}]
     #(p/add (p/multiply a %) b)))
 
+(defrecord Reflection []
+  p/Transform
+  (p/inverse [reflection] reflection)
+  (p/transform-fn [reflection]
+    #(p/conjugate %)))
+
 (defrecord Composition [sequence]
   p/Transform
   (p/inverse [{sequence :sequence}]
@@ -48,6 +48,7 @@
   (p/transform-fn [{sequence :sequence}]
     (apply comp (reverse (map p/transform-fn sequence)))))
 
+;; todo
 (defrecord Mobius [a b c d])
 (defrecord Inversion [])
 (defrecord Reciprocal [])
@@ -60,6 +61,8 @@
     :clockwise
     :counter-clockwise))
 
+;; implementation of Transformable protocol for
+;; primitive geometric objects
 (extend-protocol p/Transformable
   Vector
   (p/transform [vector transformation]
@@ -84,11 +87,3 @@
        orientation
        (:sequence transformation))
       orientation)))
-
-(comment
-  (require '[turtle-geometry.geometry] :reload)
-  (in-ns 'turtle-geometry.geometry)
-
-  (let [t (g/->Translation n/one)]
-    (p/transform (point n/zero) t))
-  )

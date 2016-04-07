@@ -1,5 +1,6 @@
 (ns turtle-geometry.number.complex
-  "complex number implementation"
+  "complex number implementation using rational roots
+  providing units in multiples of 15 degrees"
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.number.real :as real]
             [turtle-geometry.number.root :as root]))
@@ -46,10 +47,13 @@
 (def one (->Complex 1 0))
 (def i (->Complex 0 1))
 
+;; from right isosceles triangle
+;; and the Pythagorean theorem
 (def unit-45
   (let [x (p/multiply root/rt2 (/ 2))]
     (->Complex x x)))
 
+;; from an equilateral
 (def unit-60
   (let [y (p/multiply root/rt3 (/ 2))]
     (->Complex (/ 2) y)))
@@ -57,8 +61,10 @@
 (defn swap-x-y [{:keys [x y]}]
   (->Complex y x))
 
+;; reflect in y=x axis
 (def unit-30 (swap-x-y unit-60))
 
+;; using de Moivre's and Euler's formulas
 (def unit-15
   (p/multiply unit-60 (p/conjugate unit-45)))
 
@@ -79,7 +85,7 @@
    165 (p/multiply i unit-75)
    180 (p/negative one)})
 
-;; representations of multiples of 15
+;; exact representations of units with angle being multiples of 15
 (defn unit [angle]
   (assert (zero? (mod angle 15)))
   (let [a (mod angle 360)]
@@ -144,5 +150,4 @@
   (p/equals? i (p/multiply (unit 15) (unit 75)))
   (p/one? (p/multiply (unit 15) (unit (- 360 15))))
   ;;=> true
-
   )

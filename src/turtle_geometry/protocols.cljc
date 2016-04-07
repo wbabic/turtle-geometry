@@ -1,4 +1,5 @@
 (ns turtle-geometry.protocols
+  "protocols for algebra of number and transform"
   (:refer-clojure :exclude [zero?])
   (:require [clojure.core :as core]))
 
