@@ -24,11 +24,12 @@
                  (p/add (p/multiply x (:y w))
                         (p/multiply y (:x w))))))
   (p/reciprocal [_]
-    (let [r (+ (* x x) (* y y))]
-      (->Complex (/ x r)
-                 (/ (- y) r))))
+    (let [r (+ (p/multiply x x) (p/multiply y y))
+          r-recip (p/reciprocal r)]
+      (->Complex (p/multiply x r-recip)
+                 (p/multiply (p/negative y) r-recip))))
   (p/one? [_]
-    (and (== x 1) (== y 0)))
+    (and (p/equals? x 1) (p/equals? y 0)))
 
   p/Conjugate
   (p/conjugate [_]
@@ -103,26 +104,10 @@
   (in-ns 'turtle-geometry.number.complex)
   (use 'clojure.repl)
 
-  (p/conjugate one)
-  (p/conjugate i)
-  (p/add one i)
-  (p/negative one)
-  (p/equals? (p/add one i) (->Complex 1 1))
-  (p/equals? (p/multiply i i) (->Complex -1 0))
-  (p/equals? (p/multiply i (p/reciprocal i)) one)
-  (p/one? (p/multiply i (p/reciprocal i)))
-  (let [w (->Complex 1 2)]
-    (p/equals? (p/multiply w (p/reciprocal w)) one))
   (let [w (->Complex 1 2)]
     (p/one? (p/multiply w (p/reciprocal w))))
   (let [w (->Complex 1 2)]
     (p/zero? (p/add w (p/negative w))))
-  (p/evaluate one)
-  (p/evaluate (->Complex (/ 2) root/omega))
-  (p/evaluate unit-30)
-  (p/evaluate unit-45)
-  (p/conjugate unit-30)
-  (p/equals? (p/multiply unit-45 unit-45) i)
 
   unit-15
   #turtle_geometry.number.complex.Complex
@@ -134,20 +119,4 @@
    {:ratio 0,
     :roots (#turtle_geometry.number.root.Root{:base 2, :multiplier -1/4}
             #turtle_geometry.number.root.Root{:base 6, :multiplier 1/4})}}
-
-  (p/equals? (p/multiply unit-30 unit-60) i)
-  (p/equals? (unit 15) (unit 375))
-
-  (p/multiply (unit 15) (unit 30))
-  #turtle_geometry.number.complex.Complex
-  {:x #turtle_geometry.number.root.Root
-   {:base 2, :multiplier 1/2},
-   :y #turtle_geometry.number.root.Root
-   {:base 2, :multiplier 1/2}}
-
-  (p/equals? unit-30 (p/multiply (unit 15) (unit 15)))
-  (p/equals? unit-45 (p/multiply (unit 15) (unit 30)))
-  (p/equals? i (p/multiply (unit 15) (unit 75)))
-  (p/one? (p/multiply (unit 15) (unit (- 360 15))))
-  ;;=> true
   )
