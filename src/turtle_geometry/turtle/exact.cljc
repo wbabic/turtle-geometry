@@ -60,6 +60,8 @@
   ;;=> [0 5]
 
   (display-turtle initial-turtle)
+  (p/equals? initial-turtle initial-turtle)
+  ;; true
 
   (display-turtle (p/move initial-turtle 10))
   (-> initial-turtle

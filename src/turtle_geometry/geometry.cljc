@@ -3,9 +3,20 @@
   (:require [turtle-geometry.protocols :as p]))
 
 ;; primitive geometric objects
-(defrecord Point [point])
-(defrecord Vector [vector])
-(defrecord Orientation [keyword])
+(defrecord Point [point]
+  p/Equality
+  (p/equals? [_ p]
+    (p/equals? point (:point p))))
+
+(defrecord Vector [vector]
+  p/Equality
+  (p/equals? [_ v]
+    (p/equals? vector (:vector v))))
+
+(defrecord Orientation [keyword]
+  p/Equality
+  (p/equals? [_ o]
+    (= keyword (:keyword  o))))
 
 ;; primitive geometric transforms
 (defrecord Translation [vector]
@@ -78,7 +89,7 @@
   (p/transform [orientation transformation]
     (condp instance? transformation
       Reflection
-      ;; only reflect can change orientation (and inversion)
+      ;; only a reflection changes orientation (and inversion)
       (update-in orientation [:keyword] toggle-orientation)
       Composition
       (reduce
