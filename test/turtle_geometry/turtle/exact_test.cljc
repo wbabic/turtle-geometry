@@ -17,8 +17,8 @@
 ;; twenty four fold turtle
 (deftest twenty-four-fold
   (testing "24 turns brings a turtle home"
-    (let [initial-turtle [turtle/initial-turtle]
-          transformed-turtle (last (take 24
+    (let [initial-turtle turtle/initial-turtle
+          transformed-turtle (last (take 25
                                          (iterate #(p/turn % 15) initial-turtle)))]
       (is (p/equals? initial-turtle transformed-turtle)))))
 
