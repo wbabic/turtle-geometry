@@ -1,6 +1,7 @@
 (ns turtle-geometry.turtle.exact
   "a turtle implementation using complex numbers and rational roots
-  providing exact representation for rotations in multiples of 15 degrees"
+  providing exact representation for rotations in multiples of 15 degrees
+  a twenty four fold turtle"
   (:refer-clojure :exclude [vector])
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
@@ -61,7 +62,15 @@
 
   (display-turtle initial-turtle)
   (p/equals? initial-turtle initial-turtle)
-  ;; true
+  (p/equals? initial-turtle
+             (-> initial-turtle
+                 (p/turn 15)
+                 (p/turn (- 360 15))))
+  (p/equals? initial-turtle
+             (last (take 25 (iterate #(p/turn % 15) initial-turtle))))
+  ;;=>  true
+  (p/equals? initial-turtle (p/turn initial-turtle 15))
+  ;;=> false
 
   (display-turtle (p/move initial-turtle 10))
   (-> initial-turtle

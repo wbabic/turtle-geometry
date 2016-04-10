@@ -26,7 +26,10 @@
 
 (extend-protocol p/Equality
   Number
-  (p/equals? [x y] (== x y)))
+  (p/equals? [x y]
+    (if (number? y)
+      (== x y)
+      false)))
 
 (extend-protocol p/Evaluate
   Number

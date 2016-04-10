@@ -1,6 +1,7 @@
 (ns turtle-geometry.turtle.exact-test
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
+            [turtle-geometry.turtle :as t]
             [turtle-geometry.turtle.exact :as turtle]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
@@ -13,9 +14,19 @@
                  [clojure.test.check.clojure-test :refer-macros [defspec]]
                  [clojure.test.check.properties :as prop :include-macros true]])))
 
+;; twenty four fold turtle
+(deftest twenty-four-fold
+  (testing "24 turns brings a turtle home"
+    (let [initial-turtle [turtle/initial-turtle]
+          transformed-turtle (last (take 24
+                                         (iterate #(p/turn % 15) initial-turtle)))]
+      (is (p/equals? initial-turtle transformed-turtle)))))
+
 ;; turtle transforms
 
 (comment
- (require '[turtle-geometry.number.complex] :reload)
- (in-ns 'turtle-geometry.number.complex)
+  (require '[turtle-geometry.turtle.exact-test] :reload)
+  (in-ns 'turtle-geometry.turtle.exact-test)
+  (use 'clojure.repl)
+  (clojure.test/run-tests)
  )

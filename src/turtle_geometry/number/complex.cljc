@@ -119,4 +119,12 @@
    {:ratio 0,
     :roots (#turtle_geometry.number.root.Root{:base 2, :multiplier -1/4}
             #turtle_geometry.number.root.Root{:base 6, :multiplier 1/4})}}
+
+  (map clojure.pprint/pprint
+       (take 25
+             (iterate #(p/multiply (p/unit 15) %) one)))
+  "e^{i \frac {\tau} {24}} =
+(\frac {\sqrt 6} 4 +\frac {\sqrt 2} 4 ) +
+i(\frac {\sqrt 6} 4 - \frac {\sqrt 2} 4)"
+
   )
