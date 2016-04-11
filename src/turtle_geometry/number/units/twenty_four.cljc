@@ -1,5 +1,5 @@
 (ns turtle-geometry.number.units.twenty-four
-  "24 units of unity"
+  "24 units of unity, exactly, using roots 2 and 3 and multiples thereof"
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.number.complex :as complex :refer [one i]]
             [turtle-geometry.number.unit :as unit]

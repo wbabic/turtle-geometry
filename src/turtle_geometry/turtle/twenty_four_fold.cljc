@@ -51,8 +51,10 @@
     (and (== length (p/length h))
          (= 0 (mod (- angle (p/angle h)) 360)))))
 
-(defn heading [angle length]
-  (->Heading angle length))
+(defn heading
+  ([angle] (heading angle 1))
+  ([angle length]
+   (->Heading angle length)))
 
 (def initial-turtle
   (t/->Turtle
@@ -84,6 +86,9 @@
   ;;=> [5 0]
   (p/evaluate (apply add (repeat 5 n/i)))
   ;;=> [0 5]
+
+  (p/complex (heading 15))
+  (clojure.pprint/pprint (p/complex (heading 15)))
 
   (display-turtle initial-turtle)
   (display-turtle (p/move initial-turtle 10))

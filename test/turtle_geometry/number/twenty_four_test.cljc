@@ -40,11 +40,10 @@
 
 (deftest evaluation
   (testing "that units evaluate to cos sin"
-    (let [angle 15
-          epsilon 1E-14]
-      (doseq [a (map #(* % 15) (range 25))]
-        (let [u (n/unit a)]
-          (is (evaluates? epsilon a u) (str "testing angle " a)))))))
+    (let [epsilon 1E-14]
+      (doseq [angle (map #(* % 15) (range 25))]
+        (let [u (n/unit angle)]
+          (is (evaluates? epsilon angle u) (str "testing angle " angle)))))))
 
 (comment
   (require '[turtle-geometry.number.twenty-four-test] :reload)
