@@ -86,21 +86,6 @@
   ;;=> [0 5]
 
   (display-turtle initial-turtle)
-  (p/equals? initial-turtle initial-turtle)
-  (p/equals? initial-turtle
-             (-> initial-turtle
-                 (p/turn 15)
-                 (p/turn (- 360 15))))
-  (p/equals? initial-turtle
-             (last (take 25 (iterate #(p/turn % 15) initial-turtle))))
-  (p/equals? (-> initial-turtle (p/move 10))
-             (-> initial-turtle (p/resize 10) (p/move 1) (p/resize (/ 10))))
-  (p/equals? (-> initial-turtle (p/move 10) (p/turn 15))
-             (-> initial-turtle (p/resize 10) (p/move 1) (p/turn -345) (p/resize (/ 10))))
-  ;;=> true
-  (p/equals? initial-turtle (p/turn initial-turtle 15))
-  ;;=> false
-
   (display-turtle (p/move initial-turtle 10))
   (-> initial-turtle
       (p/turn 15)
