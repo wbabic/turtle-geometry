@@ -10,9 +10,7 @@
     (update-in turtle [:position]
                #(p/transform %
                              (g/->Translation
-                              (p/add
-                               (:point position)
-                               (p/multiply (:vector heading) d))))))
+                              (p/multiply (p/complex heading) d)))))
   (p/turn [turtle a]
     (update-in turtle [:heading]
                #(p/transform % (g/->Rotation a))))

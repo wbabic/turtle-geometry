@@ -11,7 +11,7 @@
 (defrecord Root [base multiplier]
   p/Evaluate
   (p/evaluate [_]
-    (* (Math/sqrt base) multiplier))
+    (* (Math/sqrt (p/evaluate base)) multiplier))
 
   p/Equality
   (equals? [x y]
@@ -54,7 +54,7 @@
   ([base] (root base 1))
   ([base multiplier]
    (cond
-     (or (zero? multiplier) (zero? base))
+     (or (p/zero? multiplier) (p/zero? base))
      0
 
      (p/one? base)
@@ -243,7 +243,7 @@
                (map #(mult-by-ratio ratio %) (:roots x))))))
 
 (defn mult-by-root
-  "multiply x by a pure root rt"
+  "multiply x by root rt"
   [rt x]
   (assert (instance? Root rt))
   (cond

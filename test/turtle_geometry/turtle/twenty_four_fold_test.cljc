@@ -1,8 +1,8 @@
-(ns turtle-geometry.turtle.exact-test
+(ns turtle-geometry.turtle.twenty-four-fold-test
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as t]
-            [turtle-geometry.turtle.exact :as turtle]
+            [turtle-geometry.turtle.twenty-four-fold :as turtle]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj
@@ -25,8 +25,8 @@
 ;; turtle transforms
 
 (comment
-  (require '[turtle-geometry.turtle.exact-test] :reload)
-  (in-ns 'turtle-geometry.turtle.exact-test)
+  (require '[turtle-geometry.turtle.twenty-four-fold-test] :reload)
+  (in-ns 'turtle-geometry.turtle.twenty-four-fold-test)
   (use 'clojure.repl)
   (clojure.test/run-tests)
  )

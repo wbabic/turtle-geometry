@@ -34,6 +34,11 @@
   (reflect [turtle])
   (invert [turtle]))
 
+(defprotocol Heading
+  (angle [_] "angle of heading")
+  (length [_] "length of heading")
+  (complex [_] "heading represented as a complex number"))
+
 ;; geometry
 (defprotocol Transform
   (inverse [transformation])
@@ -41,8 +46,3 @@
 
 (defprotocol Transformable
   (transform [object transformation]))
-
-(comment
-  (require '[turtle-geometry.protocols] :reload)
-  (in-ns 'turtle-geometry.protocols)
-  )
