@@ -1,7 +1,8 @@
 (ns turtle-geometry.turtle.twenty-four-fold-test
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
-            [turtle-geometry.turtle.twenty-four-fold :as turtle]
+            [turtle-geometry.turtle :as turtle]
+            [turtle-geometry.turtle.twenty-four-fold :as impl]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj
@@ -16,14 +17,14 @@
 ;; twenty four fold turtle
 (deftest twenty-four-fold
   (testing "24 turns brings a turtle home"
-    (let [initial-turtle turtle/initial-turtle
+    (let [initial-turtle impl/initial-turtle
           transformed-turtle (last (take 25
                                          (iterate #(p/turn % 15) initial-turtle)))]
       (is (p/equals? initial-turtle transformed-turtle)))))
 
 (deftest twenty-four-fold-turtle
   (testing "various turtle tests"
-    (let [initial-turtle turtle/initial-turtle]
+    (let [initial-turtle impl/initial-turtle]
       (is (p/equals? initial-turtle initial-turtle) "initial turtle equals itself")
       (is (p/equals? initial-turtle
                      (-> initial-turtle
@@ -49,6 +50,20 @@
           "not all turtles are equal"))))
 
 ;; turtle transforms
+(deftest home-trans
+  (testing "the transformation that brings a turtle home"
+    (let [initial-turtle impl/initial-turtle
+          transformed-turtle (-> initial-turtle
+                                 (p/turn 15)
+                                 (p/resize 10)
+                                 (p/move 1)
+                                 (p/reflect))]
+      (is (p/equals? initial-turtle
+                     (p/transform initial-turtle
+                                  (turtle/home-transformation initial-turtle))))
+      (is (p/equals? initial-turtle
+                     (p/transform transformed-turtle
+                                  (turtle/home-transformation transformed-turtle)))))))
 
 (comment
   (require '[turtle-geometry.turtle.twenty-four-fold-test] :reload)

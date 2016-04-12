@@ -8,7 +8,7 @@
             [turtle-geometry.turtle :as t]
             [turtle-geometry.number.complex :as n]
             [turtle-geometry.number.units.twenty-four :as units])
-  (:import  [turtle_geometry.geometry Rotation Dilation Translation]))
+  (:import  [turtle_geometry.geometry Translation Rotation Dilation Reflection Composition]))
 
 (defn multiply
   ([] n/one)
@@ -34,6 +34,8 @@
   p/Heading
   (angle [_] angle)
   (length [_] length)
+
+  p/Complex
   (complex [_] (p/multiply (units/unit angle) length))
 
   p/Transformable
@@ -44,7 +46,15 @@
       Rotation
       (update-in heading [:angle] #(+ % (:angle transformation)))
       Translation
-      heading))
+      heading
+      Reflection
+      (update-in heading [:angle] #(- %))
+      Composition
+      (let [transformations (:sequence transformation)]
+        (reduce
+         (fn [turtle trans] (p/transform turtle trans))
+         heading
+         transformations))))
 
   p/Equality
   (equals? [_ h]
@@ -60,13 +70,13 @@
   (t/->Turtle
    (point n/zero)
    (heading 0 1)
-   (g/->Orientation :counter-clockwise)))
+   (g/->Orientation 1)))
 
 (defn display-turtle
   [{:keys [position heading orientation]}]
   {:position (p/evaluate (:point position))
    :heading {:length (p/length heading) :angle (p/angle heading)}
-   :orientation (:keyword orientation)})
+   :orientation (p/keyword orientation)})
 
 (comment
   (require '[turtle-geometry.turtle.twenty-four-fold] :reload)
@@ -111,4 +121,12 @@
       (p/move 10)
       (p/reflect)
       display-turtle)
+
+  (let [transformed-turtle (-> initial-turtle
+                               (p/turn 15)
+                               (p/resize 10)
+                               (p/move 1)
+                               (p/reflect))]
+    (clojure.pprint/pprint
+     (t/home-transformation transformed-turtle)))
   )

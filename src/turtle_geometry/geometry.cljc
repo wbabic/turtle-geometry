@@ -4,59 +4,69 @@
 
 ;; primitive geometric objects
 (defrecord Point [point]
+  p/Complex
+  (complex [_] point)
+
   p/Equality
   (p/equals? [_ p]
     (p/equals? point (:point p))))
 
 (defrecord Vector [vector]
+  p/Complex
+  (complex [_] vector)
   p/Equality
   (p/equals? [_ v]
     (p/equals? vector (:vector v))))
 
-(defrecord Orientation [keyword]
+(defrecord Orientation [value]
+  p/Orientation
+  (value [_] value)
+  (keyword [_] (if (= value 1)
+                 :counter-clockwise
+                 :clockwise))
   p/Equality
   (p/equals? [_ o]
-    (= keyword (:keyword  o))))
+    (= value (p/value o))))
 
 ;; primitive geometric transforms
 (defrecord Translation [vector]
   p/Transform
-  (p/inverse [translation] (->Translation (p/negative (:v translation))))
-  (p/transform-fn [translation]
-    #(p/add % (:vector translation))))
+  (p/inverse [_] (->Translation (p/negative vector)))
+  (p/transform-fn [_]
+    #(p/add % vector)))
 
 (defrecord Rotation [angle]
   p/Transform
-  (p/inverse [rotation] (->Rotation (- (:angle rotation))))
-  (p/transform-fn [rotation]
-    #(p/multiply % (p/unit (:angle rotation)))))
+  (p/inverse [_] (->Rotation (- angle)))
+  (p/transform-fn [_]
+    #(p/multiply % (p/unit angle))))
 
 (defrecord Dilation [ratio]
   p/Transform
-  (p/inverse [{:keys [ratio]}] (->Dilation (/ ratio)))
-  (p/transform-fn [{:keys [ratio]}]
+  (p/inverse [_] (->Dilation (/ ratio)))
+  (p/transform-fn [_]
     #(p/multiply % ratio)))
 
 (defrecord Affine [a b]
   p/Transform
-  (p/inverse [{:keys [a b]}]
+  (p/inverse [_]
     (let [c (p/reciprocal a)
           d (p/multiply (p/negative b) (p/reciprocal a))]
       (->Affine c d)))
-  (p/transform-fn [{:keys [a b]}]
-    #(p/add (p/multiply a %) b)))
+  (p/transform-fn [_]
+    #(p/add (p/multiply % a) b)))
 
 (defrecord Reflection []
   p/Transform
   (p/inverse [reflection] reflection)
-  (p/transform-fn [reflection]
+  (p/transform-fn [_]
     #(p/conjugate %)))
 
 (defrecord Composition [sequence]
   p/Transform
-  (p/inverse [{sequence :sequence}]
+  (p/inverse [_]
     (->Composition (reverse (map p/inverse sequence))))
-  (p/transform-fn [{sequence :sequence}]
+  (p/transform-fn [_]
     (apply comp (reverse (map p/transform-fn sequence)))))
 
 ;; todo
@@ -66,11 +76,6 @@
 
 (defn mobius
   [a b c d] (->Mobius a b c d))
-
-(defn toggle-orientation [orientation]
-  (if (= orientation :counter-clockwise)
-    :clockwise
-    :counter-clockwise))
 
 ;; implementation of Transformable protocol for
 ;; primitive geometric objects
@@ -90,7 +95,7 @@
     (condp instance? transformation
       Reflection
       ;; only a reflection changes orientation (and inversion)
-      (update-in orientation [:keyword] toggle-orientation)
+      (update-in orientation [:value] #(* -1 %))
       Composition
       (reduce
        (fn [orien trans]
@@ -98,3 +103,17 @@
        orientation
        (:sequence transformation))
       orientation)))
+
+(defn conjugate
+  "conjugate of transformation g by trasnformation f"
+  [f g]
+  (->Composition
+   (list (p/inverse f) g f)))
+
+(defn rotation
+  ([angle] (->Rotation angle))
+  ([p angle] (conjugate (->Translation p) (->Rotation angle))))
+
+(defn dilation
+  ([ratio] (->Dilation ratio))
+  ([p ratio] (conjugate (->Translation p) (->Dilation ratio))))

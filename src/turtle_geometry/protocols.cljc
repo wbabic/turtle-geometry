@@ -1,6 +1,6 @@
 (ns turtle-geometry.protocols
   "protocols for algebra of number and transform"
-  (:refer-clojure :exclude [zero?])
+  (:refer-clojure :exclude [zero? keyword])
   (:require [clojure.core :as core]))
 
 ;; number
@@ -36,8 +36,12 @@
 
 (defprotocol Heading
   (angle [_] "angle of heading")
-  (length [_] "length of heading")
-  (complex [_] "heading represented as a complex number"))
+  (length [_] "length of heading"))
+(defprotocol Complex
+  (complex [_]))
+(defprotocol Orientation
+  (value [_])
+  (keyword [_]))
 
 ;; geometry
 (defprotocol Transform
