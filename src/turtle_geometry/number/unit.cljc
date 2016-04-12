@@ -24,9 +24,10 @@
     (== 0 (mod (- angle (:angle u)) 360))))
 
 (defn unit
-  "constructor"
-  [angle]
-  (->Unit angle))
+  "unit constructor"
+  ([] (unit 0))
+  ([angle]
+   (->Unit angle)))
 
 (comment
   (require '[turtle-geometry.number.unit] :reload)

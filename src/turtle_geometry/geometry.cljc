@@ -28,6 +28,11 @@
   (p/equals? [_ o]
     (= value (p/value o))))
 
+(defn orientation
+  "constructor function for orientation"
+  ([] (orientation 1))
+  ([value] (->Orientation value)))
+
 ;; primitive geometric transforms
 (defrecord Translation [vector]
   p/Transform

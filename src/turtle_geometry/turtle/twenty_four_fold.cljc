@@ -6,6 +6,7 @@
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as t]
+            [turtle-geometry.number.unit :as u]
             [turtle-geometry.number.complex :as n]
             [turtle-geometry.number.units.twenty-four :as units])
   (:import  [turtle_geometry.geometry Translation Rotation Dilation Reflection Composition]))
@@ -30,13 +31,13 @@
 (defn vector [z]
   (g/->Vector z))
 
-(defrecord Heading [angle length]
+(defrecord Heading [unit length]
   p/Heading
-  (angle [_] angle)
+  (angle [_] (:angle unit))
   (length [_] length)
 
   p/Complex
-  (complex [_] (p/multiply (units/unit angle) length))
+  (complex [_] (p/multiply (units/unit (:angle unit)) length))
 
   p/Transformable
   (transform [heading transformation]
@@ -44,11 +45,11 @@
       Dilation
       (update-in heading [:length] #(* % (:ratio transformation)))
       Rotation
-      (update-in heading [:angle] #(+ % (:angle transformation)))
+      (update-in heading [:unit] #(p/multiply % (u/unit (:angle transformation))))
       Translation
       heading
       Reflection
-      (update-in heading [:angle] #(- %))
+      (update-in heading [:unit] #(p/conjugate %))
       Composition
       (let [transformations (:sequence transformation)]
         (reduce
@@ -59,18 +60,25 @@
   p/Equality
   (equals? [_ h]
     (and (== length (p/length h))
-         (= 0 (mod (- angle (p/angle h)) 360)))))
+         (p/equals? unit (:unit h)))))
 
 (defn heading
-  ([angle] (heading angle 1))
-  ([angle length]
-   (->Heading angle length)))
+  ([] (heading (u/unit)))
+  ([unit] (heading unit 1))
+  ([unit length]
+   (if (number? unit)
+     (->Heading (u/unit unit) length)
+     (->Heading unit length))))
 
-(def initial-turtle
-  (t/->Turtle
-   (point n/zero)
-   (heading 0 1)
-   (g/->Orientation 1)))
+(defn turtle
+  "twenty-four-fold turtle constructor"
+  ([] (turtle (point n/zero) (heading) (g/orientation)))
+  ([point] (turtle point (heading) (g/orientation)))
+  ([point heading] (turtle point heading (g/orientation)))
+  ([point heading orientation]
+   (t/->Turtle point heading orientation)))
+
+(def initial-turtle (turtle))
 
 (defn display-turtle
   [{:keys [position heading orientation]}]
@@ -129,4 +137,9 @@
                                (p/reflect))]
     (clojure.pprint/pprint
      (t/home-transformation transformed-turtle)))
+
+  (clojure.pprint/pprint (p/complex (heading 15)))
+
+  (p/equals? (p/transform (heading) (g/->Rotation 15))
+             (heading 15))
   )
