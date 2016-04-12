@@ -78,8 +78,9 @@
                         (g/->Rotation 15)
                         (g/->Translation (n/complex 2 3)))))
                      (impl/turtle (impl/point (n/complex 2 3))
-                             (impl/heading 15)
-                             (g/orientation -1)))))))
+                                  (impl/heading 15)
+                                  (g/orientation -1)))
+          "rotate, translate and reflect turtle"))))
 
 (deftest home-trans
   (testing "the transformation that brings a turtle home"
