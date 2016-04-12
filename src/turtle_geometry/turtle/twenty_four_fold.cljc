@@ -137,9 +137,4 @@
                                (p/reflect))]
     (clojure.pprint/pprint
      (t/home-transformation transformed-turtle)))
-
-  (clojure.pprint/pprint (p/complex (heading 15)))
-
-  (p/equals? (p/transform (heading) (g/->Rotation 15))
-             (heading 15))
   )

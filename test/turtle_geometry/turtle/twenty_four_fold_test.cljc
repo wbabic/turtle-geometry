@@ -3,6 +3,7 @@
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as turtle]
             [turtle-geometry.turtle.twenty-four-fold :as impl]
+            [turtle-geometry.number.complex :as n]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj
@@ -50,6 +51,36 @@
           "not all turtles are equal"))))
 
 ;; turtle transforms
+(deftest basic-trans
+  (testing "the basic transformations behave as expected"
+    (let [initial-turtle (impl/turtle)]
+      (is (p/equals? (p/transform (impl/heading) (g/->Rotation 15))
+                     (impl/heading 15))
+          "heading transforms")
+      (is (p/equals? (p/transform initial-turtle
+                                  (g/->Translation (n/complex 2 3)))
+                     (impl/turtle (impl/point (n/complex 2 3))))
+          "translate turtle")
+      (is (p/equals? (p/transform
+                      initial-turtle
+                      (g/->Composition
+                       (list
+                        (g/->Rotation 15)
+                        (g/->Translation (n/complex 2 3)))))
+                     (impl/turtle (impl/point (n/complex 2 3))
+                                  (impl/heading 15)))
+          "rotate and translate turtle")
+      (is (p/equals? (p/transform
+                      initial-turtle
+                      (g/->Composition
+                       (list
+                        (g/->Reflection)
+                        (g/->Rotation 15)
+                        (g/->Translation (n/complex 2 3)))))
+                     (impl/turtle (impl/point (n/complex 2 3))
+                             (impl/heading 15)
+                             (g/orientation -1)))))))
+
 (deftest home-trans
   (testing "the transformation that brings a turtle home"
     (let [initial-turtle impl/initial-turtle
