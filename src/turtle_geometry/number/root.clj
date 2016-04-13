@@ -268,9 +268,14 @@
   (or (instance? Root x)
       (instance? RationalRoot x)))
 
+(def Phi (p/multiply (p/add rt5 1) (/ 2)))
+
+(def phi (p/multiply (p/add rt5 -1) (/ 2)))
+
 (comment
   (require '[turtle-geometry.number.root] :reload)
   (in-ns 'turtle-geometry.number.root)
 
   ;; TODO adding two roots does not yet have a reciprocal
-  (p/add rt5 omega))
+  (p/add rt5 omega)
+  )

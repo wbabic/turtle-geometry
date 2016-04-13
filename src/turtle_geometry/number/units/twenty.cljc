@@ -15,9 +15,10 @@
 
 (def unit-18 (complex/->Complex sin-18 cos-18))
 
-(def unit-36 (p/multiply unit-18 unit-18))
 
 (comment
   (require '[turtle-geometry.number.units.twenty] :reload)
   (in-ns 'turtle-geometry.number.units.twenty)
-  )
+
+  (def unit-36 (p/multiply unit-18 unit-18))
+)

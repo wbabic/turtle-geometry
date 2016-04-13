@@ -69,10 +69,19 @@
 
 (defspec multiplicative-inverse multiplicative-inverse-root-prop)
 
+(deftest phi
+  (is (p/one? (p/multiply root/Phi root/phi)))
+  (is (p/one? (p/add root/Phi (p/negative root/phi))))
+  (is (p/equals? root/Phi (p/reciprocal root/phi)))
+  (is (p/equals? root/phi (p/reciprocal root/Phi)))
+  (is (p/equals? (p/multiply root/Phi root/Phi) (p/add root/Phi 1)))
+  (is (p/equals? (p/multiply root/phi root/phi) (p/add (p/negative root/phi) 1))))
+
 (comment
   (require '[turtle-geometry.number.root-test] :reload)
   (in-ns 'turtle-geometry.number.root-test)
   (clojure.test/run-tests)
   (tc/quick-check 100 additive-inverse-root-prop)
   (tc/quick-check 100 multiplicative-inverse-root-prop)
+
   )
