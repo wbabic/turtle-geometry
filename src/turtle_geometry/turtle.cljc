@@ -38,29 +38,29 @@
          (p/equals? heading (:heading turtle))
          (p/equals? orientation (:orientation turtle)))))
 
-(defn home-transformation
-  "the transformation that brigs a turtle home
-  to the standard position"
+(defn home->turtle
+  "the transformation that brings the home turtle to the given turtle"
   [{:keys [position heading orientation]}]
   (if (= :counter-clockwise (p/keyword orientation))
-    (g/->Composition (list
-                      (p/inverse (g/->Translation
-                                  (p/complex position)))
-                      (p/inverse (g/->Rotation
-                                  (p/angle heading)))
-                      (p/inverse (g/->Dilation
-                                  (p/length heading)))))
-    (g/->Composition (list
-                      (p/inverse (g/->Translation
-                                  (p/complex position)))
-                      (p/inverse (g/->Rotation
-                                  (p/angle heading)))
-                      (p/inverse (g/->Dilation
-                                  (p/length heading)))
-                      (g/->Reflection)))))
+    (g/->Composition
+     (list
+      (g/->Rotation (p/angle heading))
+      (g/->Dilation (p/length heading))
+      (g/->Translation (p/complex position))))
+    (g/->Composition
+     (list
+      (g/->Reflection)
+      (g/->Rotation (p/angle heading))
+      (g/->Dilation (p/length heading))
+      (g/->Translation (p/complex position))))))
+
+(defn turtle->home
+  "the transformation that brings the given turtle home"
+  [turtle]
+  (p/inverse (home->turtle turtle)))
 
 (defn turtle-centric-transformation
   "perform given transformation
   wrt given turtle"
   [turtle trans]
-  (g/conjugate (home-transformation turtle) trans))
+  (g/conjugate (home->turtle turtle) trans))

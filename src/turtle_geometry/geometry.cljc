@@ -110,7 +110,7 @@
       orientation)))
 
 (defn conjugate
-  "conjugate of transformation g by trasnformation f"
+  "conjugate of transformation g by transformation f"
   [f g]
   (->Composition
    (list (p/inverse f) g f)))

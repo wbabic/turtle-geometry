@@ -136,5 +136,38 @@
                                (p/move 1)
                                (p/reflect))]
     (clojure.pprint/pprint
-     (t/home-transformation transformed-turtle)))
+     (t/turtle->home transformed-turtle)))
+  )
+
+(comment
+  ;; some simple turtle-centric transformations
+  (let [t0 (turtle)
+        t1 (-> t0 (p/turn 90) (p/move 3))
+        t2 (p/transform t1 (g/->Reflection))
+        t3 (p/transform t1 (g/->Dilation 2))
+        t4 (p/transform t1 (g/->Translation (n/complex 2 0)))
+        t5 (p/transform t1 (g/->Rotation 90))]
+    (mapv display-turtle [t1 t2 t3 t4 t5]))
+
+  [{:position [0 3],  :heading {:length 1, :angle 90},  :orientation :counter-clockwise}
+   {:position [0 -3], :heading {:length 1, :angle -90}, :orientation :clockwise}
+   {:position [0 6],  :heading {:length 2, :angle 90},  :orientation :counter-clockwise}
+   {:position [2 3],  :heading {:length 1, :angle 90},  :orientation :counter-clockwise}
+   {:position [-3 0], :heading {:length 1, :angle 180}, :orientation :counter-clockwise}]
+
+  (let [t0 (turtle)
+        t1 (-> t0 (p/move 3) (p/turn 90))
+        f (t/turtle->home t1)
+        g (t/turtle-centric-transformation t1 (g/->Reflection))
+        h (t/turtle-centric-transformation t1 (g/->Rotation -90))
+        t2 (p/transform t1 f)
+        t3 (p/transform t0 g)
+        t4 (p/transform t0 h)]
+    (mapv display-turtle [t0 t1 t2 t3 t4]))
+
+  [{:position [0 0], :heading {:length 1, :angle 0}, :orientation :counter-clockwise}
+   {:position [3 0], :heading {:length 1, :angle 90}, :orientation :counter-clockwise}
+   {:position [0 0], :heading {:length 1, :angle 0}, :orientation :counter-clockwise}
+   {:position [6 0], :heading {:length 1, :angle 180}, :orientation :clockwise}
+   {:position [3 3], :heading {:length 1, :angle -90}, :orientation :counter-clockwise}]
   )

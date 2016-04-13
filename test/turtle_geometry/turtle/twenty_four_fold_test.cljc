@@ -82,20 +82,31 @@
                                   (g/orientation -1)))
           "rotate, translate and reflect turtle"))))
 
-(deftest home-trans
+(deftest turtle->home
   (testing "the transformation that brings a turtle home"
-    (let [initial-turtle impl/initial-turtle
-          transformed-turtle (-> initial-turtle
-                                 (p/turn 15)
-                                 (p/resize 10)
-                                 (p/move 1)
-                                 (p/reflect))]
-      (is (p/equals? initial-turtle
-                     (p/transform initial-turtle
-                                  (turtle/home-transformation initial-turtle))))
-      (is (p/equals? initial-turtle
-                     (p/transform transformed-turtle
-                                  (turtle/home-transformation transformed-turtle)))))))
+    (let [t0 impl/initial-turtle
+          t1 (-> t0
+                 (p/turn 15)
+                 (p/resize 10)
+                 (p/move 1)
+                 (p/reflect))]
+      (is (p/equals? t0 (p/transform t0 (turtle/turtle->home t0))))
+      (is (p/equals? t0 (p/transform t1 (turtle/turtle->home t1))))
+      (is (p/equals? t1 (p/transform t0 (turtle/home->turtle t1)))))))
+
+(deftest turtle-centric-trans
+  (testing "rotation and reflection wrt a turtle"
+    (let [t0 (impl/turtle)
+          t1 (-> t0 (p/move 3) (p/turn 90))
+          g (turtle/turtle-centric-transformation t1 (g/->Reflection))
+          h (turtle/turtle-centric-transformation t1 (g/->Rotation -90))
+          t2 (p/transform t0 g)
+          t3 (p/transform t0 h)]
+      (is (p/equals? t2 (impl/turtle (impl/point (n/complex 6 0))
+                                     (impl/heading 180)
+                                     (g/orientation -1))))
+      (is (p/equals? t3 (impl/turtle (impl/point (n/complex 3 3))
+                                     (impl/heading -90)))))))
 
 (comment
   (require '[turtle-geometry.turtle.twenty-four-fold-test] :reload)
