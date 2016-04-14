@@ -55,11 +55,6 @@
         (p/multiply i (unit (- a 90))))
       (p/multiply (p/negative one) (unit (- a 180))))))
 
-(extend-protocol p/Unit
-  Number
-  (p/unit [angle-in-degrees]
-    (unit angle-in-degrees)))
-
 (defn almost-equals [epsilon x y]
   (< (Math/abs (- x y)) epsilon))
 
@@ -67,6 +62,11 @@
   (require '[turtle-geometry.number.units.twenty] :reload)
   (in-ns 'turtle-geometry.number.units.twenty)
   (clojure.test/run-tests)
+
+  (extend-protocol p/Unit
+    Number
+    (p/unit [angle-in-degrees]
+      (unit angle-in-degrees)))
 
   (p/equals? (p/evaluate r) (p/evaluate root/phi))
   (almost-equals 1E-16 (p/evaluate r) (p/evaluate root/phi))

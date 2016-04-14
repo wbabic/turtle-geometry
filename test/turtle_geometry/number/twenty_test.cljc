@@ -53,5 +53,4 @@
   (require '[turtle-geometry.number.twenty-test] :reload)
   (in-ns 'turtle-geometry.number.twenty-test)
   (clojure.test/run-tests)
-
 )
