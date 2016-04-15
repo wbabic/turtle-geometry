@@ -17,18 +17,13 @@
   (let [y (p/multiply root/rt3 (/ 2))]
     (complex/->Complex (/ 2) y)))
 
-(defn swap-x-y
-  "reflect in y=x axis"
-  [{:keys [x y]}]
-  (complex/->Complex y x))
-
-(def unit-30 (swap-x-y unit-60))
+(def unit-30 (complex/swap-x-y unit-60))
 
 ;; using de Moivre's and Euler's formulas
 (def unit-15
   (p/multiply unit-60 (p/conjugate unit-45)))
 
-(def unit-75 (swap-x-y unit-15))
+(def unit-75 (complex/swap-x-y unit-15))
 
 (def unit->complex
   {0 one

@@ -3,6 +3,7 @@
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.number.unit :as u]
             [turtle-geometry.number.units.twenty :as n]
+            [turtle-geometry.number.root :as root]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj
@@ -36,7 +37,6 @@
                     18
                     n/unit-18))
     (is (p/equals? (Math/cos (deg->rad 18)) (p/evaluate n/cos-18)))
-    (is (p/equals? (Math/sin (deg->rad 18)) (p/evaluate n/sin-18)))
     (is (p/equals? (Math/cos (deg->rad 36)) (p/evaluate n/cos-36)))
     (is (p/equals? (Math/sin (deg->rad 36)) (p/evaluate n/sin-36)))
     (is (p/equals? (Math/cos (deg->rad 54)) (p/evaluate (:x n/unit-54))))
@@ -49,8 +49,15 @@
         (let [u (n/unit angle)]
           (is (evaluates? epsilon angle u) (str "testing angle " angle)))))))
 
+(deftest multiplication
+  (testing "multiplication of unit-18"
+    (is (p/equals? (p/multiply n/sin-18 n/sin-18)
+                   (p/multiply (p/add (p/negative root/rt5) 3) (/ 8))))))
+
 (comment
   (require '[turtle-geometry.number.twenty-test] :reload)
   (in-ns 'turtle-geometry.number.twenty-test)
   (clojure.test/run-tests)
+
+  (p/multiply n/cos-18 n/sin-18)
 )

@@ -50,3 +50,8 @@
 (def zero (complex 0 0))
 (def one (complex 1 0))
 (def i (complex 0 1))
+
+(defn swap-x-y
+  "reflect in y=x axis"
+  [{:keys [x y]}]
+  (->Complex y x))

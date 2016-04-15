@@ -186,8 +186,8 @@
   p/Multiplication
   (p/multiply [{:keys [root ratio]} y]
     (reduce p/add
-     (mult-by-ratio ratio y)
-     (map #(mult-by-root % y) roots)))
+            (p/multiply ratio y)
+            (map #(p/multiply % y) roots)))
 
   (p/one? [_]
     (and (== 1 ratio)
@@ -221,16 +221,19 @@
       (->RationalRoot num roots))))
 
 (defn reduce-root [base multiplier]
-  (let [lsf (largest-square-factor base)]
-    (cond
-      (= lsf 1) (root base multiplier)
-      (= lsf base) (* (int (Math/sqrt base)) multiplier)
-      :else (root (/ base lsf) (* multiplier (int (Math/sqrt lsf)))))))
+  (if (number? base)
+    (let [lsf (largest-square-factor base)]
+      (cond
+        (= lsf 1) (root base multiplier)
+        (= lsf base) (* (int (Math/sqrt base)) multiplier)
+        :else (root (/ base lsf) (* multiplier (int (Math/sqrt lsf))))))
+    (root base multiplier)))
 
 (defn mult-by-ratio
   "multiply x by a ratio
   x can be a Number, a Root, or a RationalRoot"
   [ratio x]
+  (assert (number? ratio))
   (if (zero? ratio) 0
       (cond
         (number? x) (* ratio x)
@@ -254,9 +257,10 @@
           m1 (:multiplier rt)
           b2 (:base x)
           m2 (:multiplier x)]
-      (if (== b1 b2)
-        (* b1 m1 m2)
-        (reduce-root (* b1 b2) (* m1 m2))))
+      (assert (and (number? m1) (number? m2)))
+      (if (p/equals? b1 b2)
+        (p/multiply b1 (* m1 m2))
+        (reduce-root (p/multiply b1 b2) (* m1 m2))))
 
     (instance? RationalRoot x)
     (reduce
