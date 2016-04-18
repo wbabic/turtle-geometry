@@ -11,6 +11,9 @@
   (p/equals? [_ p]
     (p/equals? point (:point p))))
 
+(defn point [z]
+  (->Point z))
+
 (defrecord Vector [vector]
   p/Complex
   (complex [_] vector)

@@ -2,11 +2,46 @@
   "A transformable turtle making use of geometric transformations"
   (:require
    [turtle-geometry.protocols :as p]
-   [turtle-geometry.geometry :as g]))
+   [turtle-geometry.number.unit :as u]
+   [turtle-geometry.geometry :as g])
+  (:import  [turtle_geometry.geometry Translation Rotation Dilation Reflection Composition]))
 
-;; heading must implement the Heading protocol
-;; position, heading, and orientation must implement the
-;; Transformable and Equality protocols
+;; abstract heading - needs complex to be implemented
+(defrecord Heading [unit length]
+  p/Heading
+  (angle [_] (:angle unit))
+  (length [_] length)
+
+  p/Transformable
+  (transform [heading transformation]
+    (condp instance? transformation
+      Dilation
+      (update-in heading [:length] #(* % (:ratio transformation)))
+      Rotation
+      (update-in heading [:unit] #(p/multiply % (u/unit (:angle transformation))))
+      Translation
+      heading
+      Reflection
+      (update-in heading [:unit] #(p/conjugate %))
+      Composition
+      (let [transformations (:sequence transformation)]
+        (reduce
+         (fn [turtle trans] (p/transform turtle trans))
+         heading
+         transformations))))
+
+  p/Equality
+  (equals? [_ h]
+    (and (== length (p/length h))
+         (p/equals? unit (:unit h)))))
+
+(defn heading
+  ([] (heading (u/unit)))
+  ([unit] (heading unit 1))
+  ([unit length]
+   (if (number? unit)
+     (->Heading (u/unit unit) length)
+     (->Heading unit length))))
 
 (defrecord Turtle [position heading orientation]
   p/Turtle
@@ -37,6 +72,12 @@
     (and (p/equals? position (:position turtle))
          (p/equals? heading (:heading turtle))
          (p/equals? orientation (:orientation turtle)))))
+
+(defn display-turtle
+  [{:keys [position heading orientation]}]
+  {:position (p/evaluate (p/complex position))
+   :heading {:length (p/length heading) :angle (p/angle heading)}
+   :orientation (p/keyword orientation)})
 
 (defn home->turtle
   "the transformation that brings the home turtle to the given turtle"

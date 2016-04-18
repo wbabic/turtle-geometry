@@ -54,12 +54,12 @@
 (deftest basic-trans
   (testing "the basic transformations behave as expected"
     (let [initial-turtle (impl/turtle)]
-      (is (p/equals? (p/transform (impl/heading) (g/->Rotation 15))
-                     (impl/heading 15))
+      (is (p/equals? (p/transform (turtle/heading) (g/->Rotation 15))
+                     (turtle/heading 15))
           "heading transforms")
       (is (p/equals? (p/transform initial-turtle
                                   (g/->Translation (n/complex 2 3)))
-                     (impl/turtle (impl/point (n/complex 2 3))))
+                     (impl/turtle (g/point (n/complex 2 3))))
           "translate turtle")
       (is (p/equals? (p/transform
                       initial-turtle
@@ -67,8 +67,8 @@
                        (list
                         (g/->Rotation 15)
                         (g/->Translation (n/complex 2 3)))))
-                     (impl/turtle (impl/point (n/complex 2 3))
-                                  (impl/heading 15)))
+                     (impl/turtle (g/point (n/complex 2 3))
+                                  (turtle/heading 15)))
           "rotate and translate turtle")
       (is (p/equals? (p/transform
                       initial-turtle
@@ -77,8 +77,8 @@
                         (g/->Reflection)
                         (g/->Rotation 15)
                         (g/->Translation (n/complex 2 3)))))
-                     (impl/turtle (impl/point (n/complex 2 3))
-                                  (impl/heading 15)
+                     (impl/turtle (g/point (n/complex 2 3))
+                                  (turtle/heading 15)
                                   (g/orientation -1)))
           "rotate, translate and reflect turtle"))))
 
@@ -102,11 +102,11 @@
           h (turtle/turtle-centric-transformation t1 (g/->Rotation -90))
           t2 (p/transform t0 g)
           t3 (p/transform t0 h)]
-      (is (p/equals? t2 (impl/turtle (impl/point (n/complex 6 0))
-                                     (impl/heading 180)
+      (is (p/equals? t2 (impl/turtle (g/point (n/complex 6 0))
+                                     (turtle/heading 180)
                                      (g/orientation -1))))
-      (is (p/equals? t3 (impl/turtle (impl/point (n/complex 3 3))
-                                     (impl/heading -90)))))))
+      (is (p/equals? t3 (impl/turtle (g/point (n/complex 3 3))
+                                     (turtle/heading -90)))))))
 
 (comment
   (require '[turtle-geometry.turtle.twenty-four-fold-test] :reload)

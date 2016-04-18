@@ -1,9 +1,6 @@
 (ns turtle-geometry.number.unit
   "units of the plane"
-  (:require [turtle-geometry.protocols :as p]
-            [turtle-geometry.number.complex :as complex :refer [one i]]
-            [turtle-geometry.number.real :as real]
-            [turtle-geometry.number.root :as root]))
+  (:require [turtle-geometry.protocols :as p]))
 
 (defrecord Unit [angle]
   p/Addition
@@ -36,4 +33,5 @@
 
   (unit 15)
   (p/multiply (unit 15) (unit 30))
+  (p/equals? (unit 45) (p/multiply (unit 15) (unit 30)))
   )
