@@ -4,6 +4,12 @@
             [turtle-geometry.number.complex :as n]
             [turtle-geometry.number.unit :as u]))
 
+(defn deg->rad [degrees]
+  (* (/ degrees 180) Math/PI))
+
+(defn almost-equals [epsilon x y]
+  (< (Math/abs (- x y)) epsilon))
+
 (defn multiply
   ([] n/one)
   ([z] z)

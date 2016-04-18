@@ -1,8 +1,9 @@
 (ns turtle-geometry.number.twenty-four-test
   "tests for the complex numbers behind the twenty-four-fold turtle"
   (:require [turtle-geometry.protocols :as p]
+            [turtle-geometry.number :as n]
             [turtle-geometry.number.unit :as u]
-            [turtle-geometry.number.units.twenty-four :as n]
+            [turtle-geometry.number.units.twenty-four :as units]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj
@@ -16,33 +17,26 @@
 
 (deftest unity
   (testing "unity works as expected"
-    (let [w (n/unit 15)]
-      (is (p/one? (n/unit 0)))
-      (is (p/one? (n/unit 360)))
-      (is (p/one? (n/unit -360)))
-      (is (p/one? (n/unit 720))))))
-
-(defn deg->rad [degrees]
-  (* (/ degrees 180) Math/PI))
-
-(defn almost-equals [epsilon x y]
-  (< (Math/abs (- x y)) epsilon))
+    (is (p/one? (units/unit 0)))
+    (is (p/one? (units/unit 360)))
+    (is (p/one? (units/unit -360)))
+    (is (p/one? (units/unit 720)))))
 
 (defn unit-vector [angle]
-  [(Math/cos (deg->rad angle))
-   (Math/sin (deg->rad angle))])
+  [(Math/cos (n/deg->rad angle))
+   (Math/sin (n/deg->rad angle))])
 
 (defn evaluates? [epsilon angle complex]
   (let [[c s] (unit-vector angle)
         [c-u s-u] (p/evaluate complex)]
-    (and (almost-equals epsilon c c-u)
-         (almost-equals epsilon s s-u))))
+    (and (n/almost-equals epsilon c c-u)
+         (n/almost-equals epsilon s s-u))))
 
 (deftest evaluation
   (testing "that units evaluate to cos sin"
     (let [epsilon 1E-14]
       (doseq [angle (map #(* % 15) (range 25))]
-        (let [u (n/unit angle)]
+        (let [u (units/unit angle)]
           (is (evaluates? epsilon angle u) (str "testing angle " angle)))))))
 
 (comment

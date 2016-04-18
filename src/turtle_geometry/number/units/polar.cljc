@@ -1,6 +1,7 @@
 (ns turtle-geometry.number.units.polar
   "inexact representations of polar numbers for all angles"
   (:require [turtle-geometry.protocols :as p]
+
             [turtle-geometry.number.complex :as n :refer [one i]]
             [turtle-geometry.number.unit :as unit]
             [turtle-geometry.number.real :as real]

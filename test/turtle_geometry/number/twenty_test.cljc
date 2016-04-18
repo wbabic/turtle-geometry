@@ -1,8 +1,9 @@
 (ns turtle-geometry.number.twenty-test
   "tests for the complex numbers behind the twenty-fold turtle"
   (:require [turtle-geometry.protocols :as p]
+            [turtle-geometry.number :as n]
             [turtle-geometry.number.unit :as u]
-            [turtle-geometry.number.units.twenty :as n]
+            [turtle-geometry.number.units.twenty :as units]
             [turtle-geometry.number.root :as root]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
@@ -15,43 +16,37 @@
                  [clojure.test.check.clojure-test :refer-macros [defspec]]
                  [clojure.test.check.properties :as prop :include-macros true]])))
 
-(defn deg->rad [degrees]
-  (* (/ degrees 180) Math/PI))
-
-(defn almost-equals [epsilon x y]
-  (< (Math/abs (- x y)) epsilon))
-
 (defn unit-vector [angle]
-  [(Math/cos (deg->rad angle))
-   (Math/sin (deg->rad angle))])
+  [(Math/cos (n/deg->rad angle))
+   (Math/sin (n/deg->rad angle))])
 
 (defn evaluates? [epsilon angle complex]
   (let [[c s] (unit-vector angle)
         [c-u s-u] (p/evaluate complex)]
-    (and (almost-equals epsilon c c-u)
-         (almost-equals epsilon s s-u))))
+    (and (n/almost-equals epsilon c c-u)
+         (n/almost-equals epsilon s s-u))))
 
 (deftest unit-18
   (testing "cos-18 and sin-18 evaluate correctly"
     (is (evaluates? 1E-16
                     18
-                    n/unit-18))
-    (is (p/equals? (Math/cos (deg->rad 18)) (p/evaluate n/cos-18)))
-    (is (p/equals? (Math/cos (deg->rad 36)) (p/evaluate n/cos-36)))
-    (is (p/equals? (Math/sin (deg->rad 36)) (p/evaluate n/sin-36)))
-    (is (p/equals? (Math/cos (deg->rad 54)) (p/evaluate (:x n/unit-54))))
-    (is (p/equals? (Math/sin (deg->rad 54)) (p/evaluate (:y n/unit-54))))))
+                    units/unit-18))
+    (is (p/equals? (Math/cos (n/deg->rad 18)) (p/evaluate units/cos-18)))
+    (is (p/equals? (Math/cos (n/deg->rad 36)) (p/evaluate units/cos-36)))
+    (is (p/equals? (Math/sin (n/deg->rad 36)) (p/evaluate units/sin-36)))
+    (is (p/equals? (Math/cos (n/deg->rad 54)) (p/evaluate (:x units/unit-54))))
+    (is (p/equals? (Math/sin (n/deg->rad 54)) (p/evaluate (:y units/unit-54))))))
 
 (deftest evaluation
   (testing "that units evaluate to cos sin"
     (let [epsilon 1E-14]
       (doseq [angle (map #(* % 18) (range 21))]
-        (let [u (n/unit angle)]
+        (let [u (units/unit angle)]
           (is (evaluates? epsilon angle u) (str "testing angle " angle)))))))
 
 (deftest multiplication
   (testing "multiplication of unit-18"
-    (is (p/equals? (p/multiply n/sin-18 n/sin-18)
+    (is (p/equals? (p/multiply units/sin-18 units/sin-18)
                    (p/multiply (p/add (p/negative root/rt5) 3) (/ 8))))))
 
 (comment
@@ -59,5 +54,5 @@
   (in-ns 'turtle-geometry.number.twenty-test)
   (clojure.test/run-tests)
 
-  (p/multiply n/cos-18 n/sin-18)
+  (p/multiply units/cos-18 units/sin-18)
 )
