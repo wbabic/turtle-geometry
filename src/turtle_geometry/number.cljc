@@ -4,6 +4,10 @@
             [turtle-geometry.number.complex :as n]
             [turtle-geometry.number.unit :as u]))
 
+(def ^:const PI Math/PI)
+(def ^:const TAU (* 2 PI))
+(defn mod-tau [x] (mod x TAU))
+
 (defn deg->rad [degrees]
   (* (/ degrees 180) Math/PI))
 
