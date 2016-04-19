@@ -39,15 +39,14 @@
 
   :source-paths ["src"]
 
-  :cljsbuild {
-              :builds [{:id "devcards"
+  :cljsbuild {:builds [{:id "devcards"
                         :source-paths ["src"]
-                        :figwheel { :devcards true } ;; <- note this
-                        :compiler { :main       "turtle-geometry.core"
-                                    :asset-path "js/compiled/devcards_out"
+                        :figwheel {:devcards true } ;; <- note this
+                        :compiler {:main       "turtle-geometry.core"
+                                   :asset-path "js/compiled/devcards_out"
                                    :output-to  "resources/public/js/compiled/turtle-geometry.js"
-                                    :output-dir "resources/public/js/compiled/devcards_out"
-                                    :source-map-timestamp true }}
+                                   :output-dir "resources/public/js/compiled/devcards_out"
+                                   :source-map-timestamp true }}
                        {:id "pages"
                         :source-paths ["src" "pages-src"]
                         :compiler {:main       "pages.core"
@@ -56,4 +55,4 @@
                                    :output-to  "resources/public/js/pages/turtle-geometry.js"
                                    :optimizations :advanced}}]}
 
-  :figwheel { :css-dirs ["resources/public/css"] })
+  :figwheel { :css-dirs ["resources/public/css"]})
