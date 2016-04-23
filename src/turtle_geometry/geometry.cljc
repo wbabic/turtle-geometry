@@ -8,8 +8,10 @@
   (complex [_] point)
 
   p/Equality
-  (p/equals? [_ p]
-    (p/equals? point (:point p))))
+  (equals? [_ p]
+    (p/equals? point (:point p)))
+  (almost-equals? [_ p epsilon]
+    (p/almost-equals? point (:point p) epsilon)))
 
 (defn point [z]
   (->Point z))

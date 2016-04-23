@@ -26,10 +26,10 @@
 
 (extend-protocol p/Equality
   Number
-  (p/equals? [x y]
-    (if (number? y)
-      (== x y)
-      false)))
+  (equals? [x y]
+    (== x y))
+  (almost-equals? [x y epsilon]
+    (< (Math/abs (- x y)) epsilon)))
 
 (extend-protocol p/Evaluate
   Number

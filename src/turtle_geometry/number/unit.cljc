@@ -1,6 +1,7 @@
 (ns turtle-geometry.number.unit
   "units of the plane"
-  (:require [turtle-geometry.protocols :as p]))
+  (:require [turtle-geometry.protocols :as p]
+            [turtle-geometry.number.real]))
 
 (defrecord Unit [angle]
   p/Addition
@@ -18,7 +19,11 @@
 
   p/Equality
   (equals? [_ u]
-    (== 0 (mod (- angle (:angle u)) 360))))
+    (== 0 (mod (- angle (:angle u)) 360)))
+  (almost-equals? [_ u epsilon]
+    (p/almost-equals?
+     0
+     (mod (- angle (:angle u)) 360) epsilon)))
 
 (defn unit
   "unit constructor"
@@ -34,4 +39,5 @@
   (unit 15)
   (p/multiply (unit 15) (unit 30))
   (p/equals? (unit 45) (p/multiply (unit 15) (unit 30)))
+  (p/almost-equals? (unit 45) (unit 45) 1E-10)
   )

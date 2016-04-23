@@ -33,7 +33,9 @@
   p/Equality
   (equals? [_ h]
     (and (== length (p/length h))
-         (p/equals? unit (:unit h)))))
+         (p/equals? unit (:unit h))))
+  (almost-equals? [_ h epsilon]
+    (and (p/almost-equals? unit (:unit h) epsilon))))
 
 (defn heading
   ([] (heading (u/unit)))
@@ -68,9 +70,13 @@
         (update-in [:orientation] #(p/transform % transformation))))
 
   p/Equality
-  (p/equals? [_ turtle]
+  (equals? [_ turtle]
     (and (p/equals? position (:position turtle))
          (p/equals? heading (:heading turtle))
+         (p/equals? orientation (:orientation turtle))))
+  (almost-equals? [_ turtle epsilon]
+    (and (p/almost-equals? heading (:heading turtle) epsilon)
+         (p/almost-equals? position (:position turtle) epsilon)
          (p/equals? orientation (:orientation turtle)))))
 
 (defn display-turtle

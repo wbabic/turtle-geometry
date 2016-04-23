@@ -5,41 +5,44 @@
 
 (defrecord Complex [x y]
   p/Addition
-  (p/add [_ w]
+  (add [_ w]
     (->Complex (p/add x (:x w))
                (p/add y (:y w))))
-  (p/negative [_]
+  (negative [_]
     (->Complex (p/negative x) (p/negative y)))
-  (p/zero? [_]
+  (zero? [_]
     (and (zero? x) (zero? y)))
 
   p/Multiplication
-  (p/multiply [_ w]
+  (multiply [_ w]
     (if (number? w)
       (->Complex (p/multiply x w) (p/multiply y w))
       (->Complex (p/add (p/multiply x (:x w))
                         (p/negative (p/multiply y (:y w))))
                  (p/add (p/multiply x (:y w))
                         (p/multiply y (:x w))))))
-  (p/reciprocal [_]
+  (reciprocal [_]
     (let [r (+ (p/multiply x x) (p/multiply y y))
           r-recip (p/reciprocal r)]
       (->Complex (p/multiply x r-recip)
                  (p/multiply (p/negative y) r-recip))))
-  (p/one? [_]
+  (one? [_]
     (and (p/equals? x 1) (p/equals? y 0)))
 
   p/Conjugate
-  (p/conjugate [_]
+  (conjugate [_]
     (->Complex x (p/negative y)))
 
   p/Equality
-  (p/equals? [_ w]
+  (equals? [_ w]
     (and (p/equals? x (:x w))
          (p/equals? y (:y w))))
+  (almost-equals? [_ w epsilon]
+    (and (p/almost-equals? x (:x w) epsilon)
+         (p/almost-equals? y (:y w) epsilon)))
 
   p/Evaluate
-  (p/evaluate [_]
+  (evaluate [_]
     [(p/evaluate x) (p/evaluate y)]))
 
 (defn complex

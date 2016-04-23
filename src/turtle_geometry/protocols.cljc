@@ -18,7 +18,8 @@
   (conjugate [x]))
 
 (defprotocol Equality
-  (equals? [x y]))
+  (equals? [x y])
+  (almost-equals? [x y epsilon]))
 
 (defprotocol Evaluate
   (evaluate [x]))
