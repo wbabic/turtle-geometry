@@ -24,13 +24,13 @@
       (is (p/equals? initial-turtle transformed-turtle)))))
 
 (deftest twenty-four-fold-from
-  (testing "24 turns brings a turtle home, "
+  (testing "24 turns brings a turtle home, but not always exactly"
     (let [t0 impl/initial-turtle
           t1 (-> t0 (p/turn 3) (p/move 1))
           t2 (last (take 25 (iterate #(p/turn % 15) t1)))
           t3 (-> t2 (p/move -1) (p/turn -3))]
       (is (p/equals? t1 t2))
-      (is (not (p/equals? t0 t3)))but not always exactly
+      (is (not (p/equals? t0 t3)))
       (is (p/almost-equals? t0 t3 1E-15))
       (is (not (p/almost-equals? t0 t3 1E-16))))))
 
