@@ -156,7 +156,10 @@
   [z] (->Translation z))
 
 (defn reflection
-  [] (->Reflection))
+  ([] (->Reflection))
+  ([point heading]
+   (let [f (compose (translation point) (rotation heading))]
+     (conjugate f (->Reflection)))))
 
 (defn toggle [conj]
   (if (true? conj) false true))
@@ -199,20 +202,3 @@
     (if (false? conj)
       affine
       (->Composition (list affine (->Reflection))))))
-
-(comment
-  (g/compose)
-  (g/compose (g/reflection))
-  (g/compose (g/rotation 45) (g/dilation 2))
-  (g/compose (g/rotation 45) (g/dilation 2) (g/->Translation (n/complex 3 4)))
-  (g/compose (g/reflection) (g/translation (n/complex 4 5)))
-
-  (= (g/compose) g/Identity)
-  (= (p/inverse g/Identity) g/Identity)
-  ((p/transform-fn g/Identity) (n/complex 2 3))
-
-  (p/equals? g/Identity (g/dilation 1))
-  (p/equals? g/Identity (g/rotation 0))
-  (p/equals? g/Identity (g/rotation 360))
-  (p/equals? g/Identity (g/rotation -360))
-  (p/equals? g/Identity (g/translation n/zero)))
