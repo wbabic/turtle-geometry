@@ -79,6 +79,30 @@
   (p/transform-fn [_]
     (apply comp (reverse (map p/transform-fn sequence)))))
 
+(def Identity
+  (reify
+    p/Transform
+    (inverse [i] i)
+    (transform-fn [_]
+      identity)
+    p/Equality
+    (equals? [_ t]
+      (condp instance? t
+        Rotation
+        (== 0 (mod (:angle t) 360))
+        Translation
+        (p/zero? (:vector t))
+        Dilation
+        (p/one? (:ratio t))
+        false))))
+
+(defn compose
+  "compose transformations"
+  ([] Identity)
+  ([t] t)
+  ([t & ts]
+   (->Composition (conj ts t))))
+
 ;; todo
 (defrecord Mobius [a b c d])
 (defrecord Inversion [])
@@ -128,6 +152,12 @@
   ([ratio] (->Dilation ratio))
   ([p ratio] (conjugate (->Translation p) (->Dilation ratio))))
 
+(defn translation
+  [z] (->Translation z))
+
+(defn reflection
+  [] (->Reflection))
+
 (defn toggle [conj]
   (if (true? conj) false true))
 
@@ -169,3 +199,20 @@
     (if (false? conj)
       affine
       (->Composition (list affine (->Reflection))))))
+
+(comment
+  (g/compose)
+  (g/compose (g/reflection))
+  (g/compose (g/rotation 45) (g/dilation 2))
+  (g/compose (g/rotation 45) (g/dilation 2) (g/->Translation (n/complex 3 4)))
+  (g/compose (g/reflection) (g/translation (n/complex 4 5)))
+
+  (= (g/compose) g/Identity)
+  (= (p/inverse g/Identity) g/Identity)
+  ((p/transform-fn g/Identity) (n/complex 2 3))
+
+  (p/equals? g/Identity (g/dilation 1))
+  (p/equals? g/Identity (g/rotation 0))
+  (p/equals? g/Identity (g/rotation 360))
+  (p/equals? g/Identity (g/rotation -360))
+  (p/equals? g/Identity (g/translation n/zero)))

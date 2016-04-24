@@ -89,17 +89,15 @@
   "the transformation that brings the home turtle to the given turtle"
   [{:keys [position heading orientation]}]
   (if (= :counter-clockwise (p/keyword orientation))
-    (g/->Composition
-     (list
-      (g/->Rotation (p/angle heading))
-      (g/->Dilation (p/length heading))
-      (g/->Translation (p/complex position))))
-    (g/->Composition
-     (list
-      (g/->Reflection)
-      (g/->Rotation (p/angle heading))
-      (g/->Dilation (p/length heading))
-      (g/->Translation (p/complex position))))))
+    (g/compose
+     (g/->Rotation (p/angle heading))
+     (g/->Dilation (p/length heading))
+     (g/->Translation (p/complex position)))
+    (g/compose
+     (g/->Reflection)
+     (g/->Rotation (p/angle heading))
+     (g/->Dilation (p/length heading))
+     (g/->Translation (p/complex position)))))
 
 (defn turtle->home
   "the transformation that brings the given turtle home"

@@ -63,20 +63,18 @@
           "translate turtle")
       (is (p/equals? (p/transform
                       initial-turtle
-                      (g/->Composition
-                       (list
-                        (g/->Rotation 15)
-                        (g/->Translation (n/complex 2 3)))))
+                      (g/compose
+                       (g/->Rotation 15)
+                       (g/->Translation (n/complex 2 3))))
                      (impl/turtle (g/point (n/complex 2 3))
                                   (turtle/heading 15)))
           "rotate and translate turtle")
       (is (p/equals? (p/transform
                       initial-turtle
-                      (g/->Composition
-                       (list
-                        (g/->Reflection)
-                        (g/->Rotation 15)
-                        (g/->Translation (n/complex 2 3)))))
+                      (g/compose
+                       (g/->Reflection)
+                       (g/->Rotation 15)
+                       (g/->Translation (n/complex 2 3))))
                      (impl/turtle (g/point (n/complex 2 3))
                                   (turtle/heading 15)
                                   (g/orientation -1)))
