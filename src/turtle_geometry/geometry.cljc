@@ -111,6 +111,29 @@
 (defn mobius
   [a b c d] (->Mobius a b c d))
 
+(defn conjugate
+  "conjugate of transformation g by transformation f"
+  [f g]
+  (->Composition
+   (list (p/inverse f) g f)))
+
+(defn rotation
+  ([angle] (->Rotation angle))
+  ([p angle] (conjugate (->Translation p) (->Rotation angle))))
+
+(defn dilation
+  ([ratio] (->Dilation ratio))
+  ([p ratio] (conjugate (->Translation p) (->Dilation ratio))))
+
+(defn translation
+  [z] (->Translation z))
+
+(defn reflection
+  ([] (->Reflection))
+  ([point heading]
+   (let [f (compose (translation point) (rotation heading))]
+     (conjugate f (->Reflection)))))
+
 ;; implementation of Transformable protocol for
 ;; primitive geometric objects
 (extend-protocol p/Transformable
@@ -137,29 +160,6 @@
        orientation
        (:sequence transformation))
       orientation)))
-
-(defn conjugate
-  "conjugate of transformation g by transformation f"
-  [f g]
-  (->Composition
-   (list (p/inverse f) g f)))
-
-(defn rotation
-  ([angle] (->Rotation angle))
-  ([p angle] (conjugate (->Translation p) (->Rotation angle))))
-
-(defn dilation
-  ([ratio] (->Dilation ratio))
-  ([p ratio] (conjugate (->Translation p) (->Dilation ratio))))
-
-(defn translation
-  [z] (->Translation z))
-
-(defn reflection
-  ([] (->Reflection))
-  ([point heading]
-   (let [f (compose (translation point) (rotation heading))]
-     (conjugate f (->Reflection)))))
 
 (defn toggle [conj]
   (if (true? conj) false true))
