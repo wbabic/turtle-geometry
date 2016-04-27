@@ -2,8 +2,6 @@
   "24 units of unity, exactly, using roots 2 and 3 and multiples thereof"
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.number.complex :as complex :refer [one i]]
-            [turtle-geometry.number.unit :as unit]
-            [turtle-geometry.number.real :as real]
             [turtle-geometry.number.root :as root]))
 
 ;; from right isosceles triangle
@@ -25,7 +23,7 @@
 
 (def unit-75 (complex/swap-x-y unit-15))
 
-(def unit->complex
+(def angle->complex-map
   {0 one
    15 unit-15
    30 unit-30
@@ -41,22 +39,44 @@
    180 (p/negative one)})
 
 ;; exact representations of units with angle being multiples of 15
-(defn unit [angle]
+(defn angle->complex [angle]
   (assert (zero? (mod angle 15)))
   (let [a (mod angle 360)]
     (if (<= a 180)
-      (unit->complex a)
-      (p/multiply (p/negative one) (unit (- a 180))))))
+      (angle->complex-map a)
+      (p/multiply (p/negative one) (angle->complex-map (- a 180))))))
 
-(extend-protocol p/Unit
-  Number
-  (p/unit [angle-in-degrees]
-    (unit angle-in-degrees)))
+(defrecord Unit [angle]
+  p/Unit
+  (p/angle->complex [_] (angle->complex angle))
+
+  p/Multiplication
+  (multiply [_ u]
+    (->Unit (+ angle (:angle u))))
+  (reciprocal [_] (->Unit (- 360 angle)))
+  (one? [_] (= 0 (mod angle 360)))
+
+  p/Conjugate
+  (conjugate [_] (->Unit (- angle)))
+
+  p/Equality
+  (equals? [_ u]
+    (== 0 (mod (- angle (:angle u)) 360)))
+  (almost-equals? [_ u epsilon]
+    (p/almost-equals? 0 (mod (- angle (:angle u)) 360) epsilon)))
+
+(defn unit [angle]
+  (assert (zero? (mod angle 15)))
+  (->Unit angle))
 
 (comment
   (require '[turtle-geometry.number.units.twenty-four] :reload)
   (in-ns 'turtle-geometry.number.units.twenty-four)
   (use 'clojure.repl)
+
+  (unit 15)
+  (angle->complex 15)
+  (p/angle->complex (unit 15))
 
   unit-15
   #turtle_geometry.number.complex.Complex
@@ -73,6 +93,6 @@
   (map clojure.pprint/pprint
        (take 7
              (iterate
-              #(p/multiply (p/unit 15) %)
+              #(p/multiply (p/angle->complex (unit 15)) %)
               one)))
   )

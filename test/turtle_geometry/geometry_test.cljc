@@ -2,10 +2,8 @@
   "geometry test using inexact complex numbers"
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
-            [turtle-geometry.number :as n]
-            [turtle-geometry.number.unit :as u]
-            [turtle-geometry.number.real]
-            [turtle-geometry.number.units.polar :as units]
+            [turtle-geometry.turtle :as turtle]
+            [turtle-geometry.number.units.twenty-four :as units]
             [turtle-geometry.number.complex :as complex]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
@@ -23,17 +21,17 @@
     (is (= g/Identity (g/compose)) "no arguments is identity")
     (is (= (g/->Reflection) (g/compose (g/reflection))) "one argument returns itself")
     (is (= (g/->Composition (list (g/->Reflection)
-                                  (g/->Rotation 45)
+                                  (g/->Rotation (units/unit 45))
                                   (g/->Translation complex/one)))
-           (g/compose (g/reflection) (g/rotation 45) (g/translation complex/one)))
+           (g/compose (g/reflection) (g/rotation (units/unit 45)) (g/translation complex/one)))
         "compose works for 3 args")))
 
 (deftest basic-identity
   (testing "Identity behaves as expected"
     (is (= (p/inverse g/Identity) g/Identity) "inverse of Identity is Identity")
-    (is (p/equals? g/Identity (g/rotation 0)) "rotation by 0 is identity")
-    (is (p/equals? g/Identity (g/rotation 360)) "rotation by 360 is identity")
-    (is (p/equals? g/Identity (g/rotation -360)) "rotation by -360 is identity")
+    (is (p/equals? g/Identity (g/rotation (units/unit 0))) "rotation by 0 is identity")
+    (is (p/equals? g/Identity (g/rotation (units/unit 360))) "rotation by 360 is identity")
+    (is (p/equals? g/Identity (g/rotation (units/unit -360))) "rotation by -360 is identity")
     (is (p/equals? g/Identity (g/translation complex/zero)) "translation by zero is identity")
     (is (p/equals? g/Identity (g/dilation 1)) "dilation by one is identity")
     (is (p/equals? (complex/complex 2 3)
@@ -42,8 +40,9 @@
 
 (deftest basic-transforms
   (testing "basic properties of transforms"
-    (is (p/equals? (g/point (complex/complex -1 0))
-                   (p/transform (g/point complex/one) (g/reflection complex/zero 90)))
+    (is (p/equals? (turtle/position (complex/complex -1 0))
+                   (p/transform (turtle/position complex/one)
+                                (g/reflection complex/zero (units/unit 90))))
         "reflection about y-axis transforms one to -one")))
 
 (comment

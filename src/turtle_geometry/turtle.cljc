@@ -2,27 +2,43 @@
   "A transformable turtle making use of geometric transformations"
   (:require
    [turtle-geometry.protocols :as p]
-   [turtle-geometry.number.unit :as u]
    [turtle-geometry.geometry :as g])
   (:import  [turtle_geometry.geometry Translation Rotation Dilation Reflection Composition]))
+
+(defrecord Position [complex]
+  p/Position
+  (point [_] complex)
+
+  p/Transformable
+  (transform [_ transformation]
+    (->Position ((p/transform-fn transformation) complex)))
+
+  p/Equality
+  (equals? [_ p]
+    (p/equals? complex (:complex p)))
+  (almost-equals? [_ p epsilon]
+    (p/almost-equals? complex (:complex p) epsilon)))
+
+(defn position
+  "represent a position by a complex number z"
+  [z]
+  (->Position z))
 
 ;; abstract heading - needs complex to be implemented
 (defrecord Heading [unit length]
   p/Heading
   (angle [_] (:angle unit))
   (length [_] length)
+  (vector [_] (p/angle->complex unit))
 
   p/Transformable
   (transform [heading transformation]
     (condp instance? transformation
-      Dilation
-      (update-in heading [:length] #(* % (:ratio transformation)))
-      Rotation
-      (update-in heading [:unit] #(p/multiply % (u/unit (:angle transformation))))
-      Translation
-      heading
-      Reflection
-      (update-in heading [:unit] #(p/conjugate %))
+      Dilation (update-in heading [:length] #(* % (:ratio transformation)))
+      Rotation (update-in heading [:unit :angle] #(+ % (get-in transformation
+                                                               [:unit :angle])))
+      Translation heading
+      Reflection (update-in heading [:unit :angle] #(- %))
       Composition
       (let [transformations (:sequence transformation)]
         (reduce
@@ -32,35 +48,60 @@
 
   p/Equality
   (equals? [_ h]
-    (and (== length (p/length h))
+    (and (== length (:length h))
          (p/equals? unit (:unit h))))
   (almost-equals? [_ h epsilon]
-    (and (p/almost-equals? unit (:unit h) epsilon))))
+    (and (p/almost-equals? length (:length h) epsilon)
+         (p/almost-equals? unit (:unit h) epsilon))))
 
 (defn heading
-  ([] (heading (u/unit)))
   ([unit] (heading unit 1))
   ([unit length]
-   (if (number? unit)
-     (->Heading (u/unit unit) length)
-     (->Heading unit length))))
+   (->Heading unit length)))
+
+(defrecord Orientation [value]
+  p/Orientation
+  (value [_] value)
+  (keyword [_] (if (= value 1)
+                 :counter-clockwise
+                 :clockwise))
+
+  p/Transformable
+  (transform [orientation transformation]
+    (condp instance? transformation
+      Reflection (->Orientation (- value))
+      Composition
+      (reduce
+       (fn [orien trans]
+         (p/transform orien trans))
+       orientation
+       (:sequence transformation))
+      orientation))
+
+  p/Equality
+  (p/equals? [_ o]
+    (= value (p/value o))))
+
+(defn orientation
+  "constructor function for orientation"
+  ([] (orientation 1))
+  ([value] (->Orientation value)))
 
 (defrecord Turtle [position heading orientation]
   p/Turtle
-  (p/move [{position :position heading :heading :as turtle} distance]
-    (update-in turtle [:position]
-               #(p/transform %
-                             (g/->Translation
-                              (p/multiply (p/complex heading) distance)))))
+  (p/move [turtle distance]
+    (let [v (p/multiply (p/angle->complex (:unit heading))
+                        (* (:length heading) distance))]
+      (update-in turtle [:position :complex] #(p/add % v))))
   (p/turn [turtle angle]
-    (update-in turtle [:heading]
-               #(p/transform % (g/->Rotation angle))))
+    (update-in turtle [:heading :unit :angle] #(+ % angle)))
   (p/resize [turtle ratio]
-    (update-in turtle [:heading]
-               #(p/transform % (g/->Dilation ratio))))
+    (update-in turtle [:heading :length]
+               #(* % ratio)))
   (p/reflect [turtle]
-    (update-in turtle [:orientation]
-               #(p/transform % (g/->Reflection))))
+    (-> turtle
+        (update-in  [:heading :unit :angle] #(- %))
+        (update-in  [:orientation :value] #(- %))))
 
   p/Transformable
   (p/transform [turtle transformation]
@@ -81,23 +122,20 @@
 
 (defn display-turtle
   [{:keys [position heading orientation]}]
-  {:position (p/evaluate (p/complex position))
+  {:position (p/evaluate (p/point position))
    :heading {:length (p/length heading) :angle (p/angle heading)}
    :orientation (p/keyword orientation)})
 
 (defn home->turtle
   "the transformation that brings the home turtle to the given turtle"
   [{:keys [position heading orientation]}]
-  (if (= :counter-clockwise (p/keyword orientation))
-    (g/compose
-     (g/->Rotation (p/angle heading))
-     (g/->Dilation (p/length heading))
-     (g/->Translation (p/complex position)))
-    (g/compose
-     (g/->Reflection)
-     (g/->Rotation (p/angle heading))
-     (g/->Dilation (p/length heading))
-     (g/->Translation (p/complex position)))))
+  (let [ts (list
+            (g/->Rotation    (:unit heading))
+            (g/->Dilation    (:length heading))
+            (g/->Translation (:complex position)))]
+    (if (= :counter-clockwise (p/keyword orientation))
+      (apply g/compose ts)
+      (apply g/compose (g/->Reflection) ts))))
 
 (defn turtle->home
   "the transformation that brings the given turtle home"

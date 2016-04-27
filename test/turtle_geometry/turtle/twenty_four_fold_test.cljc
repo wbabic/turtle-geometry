@@ -3,6 +3,7 @@
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as turtle]
             [turtle-geometry.turtle.twenty-four-fold :as impl]
+            [turtle-geometry.number.units.twenty-four :as units]
             [turtle-geometry.number.complex :as n]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
@@ -54,30 +55,30 @@
 (deftest basic-trans
   (testing "the basic transformations behave as expected"
     (let [initial-turtle (impl/turtle)]
-      (is (p/equals? (p/transform (turtle/heading) (g/->Rotation 15))
-                     (turtle/heading 15))
+      (is (p/equals? (p/transform (turtle/heading (units/unit 0)) (g/->Rotation (units/unit 15)))
+                     (turtle/heading (units/unit 15)))
           "heading transforms")
       (is (p/equals? (p/transform initial-turtle
                                   (g/->Translation (n/complex 2 3)))
-                     (impl/turtle (g/point (n/complex 2 3))))
+                     (impl/turtle (turtle/position (n/complex 2 3))))
           "translate turtle")
       (is (p/equals? (p/transform
                       initial-turtle
                       (g/compose
-                       (g/->Rotation 15)
+                       (g/->Rotation (units/unit 15))
                        (g/->Translation (n/complex 2 3))))
-                     (impl/turtle (g/point (n/complex 2 3))
-                                  (turtle/heading 15)))
+                     (impl/turtle (turtle/position (n/complex 2 3))
+                                  (turtle/heading (units/unit 15))))
           "rotate and translate turtle")
       (is (p/equals? (p/transform
                       initial-turtle
                       (g/compose
                        (g/->Reflection)
-                       (g/->Rotation 15)
+                       (g/->Rotation (units/unit 15))
                        (g/->Translation (n/complex 2 3))))
-                     (impl/turtle (g/point (n/complex 2 3))
-                                  (turtle/heading 15)
-                                  (g/orientation -1)))
+                     (impl/turtle (turtle/position (n/complex 2 3))
+                                  (turtle/heading (units/unit 15))
+                                  (turtle/orientation -1)))
           "rotate, translate and reflect turtle"))))
 
 (deftest turtle->home
@@ -97,14 +98,14 @@
     (let [t0 (impl/turtle)
           t1 (-> t0 (p/move 3) (p/turn 90))
           g (turtle/turtle-centric-transformation t1 (g/->Reflection))
-          h (turtle/turtle-centric-transformation t1 (g/->Rotation -90))
+          h (turtle/turtle-centric-transformation t1 (g/->Rotation (units/unit -90)))
           t2 (p/transform t0 g)
           t3 (p/transform t0 h)]
-      (is (p/equals? t2 (impl/turtle (g/point (n/complex 6 0))
-                                     (turtle/heading 180)
-                                     (g/orientation -1))))
-      (is (p/equals? t3 (impl/turtle (g/point (n/complex 3 3))
-                                     (turtle/heading -90)))))))
+      (is (p/equals? t2 (impl/turtle (turtle/position (n/complex 6 0))
+                                     (turtle/heading (units/unit 180))
+                                     (turtle/orientation -1))))
+      (is (p/equals? t3 (impl/turtle (turtle/position (n/complex 3 3))
+                                     (turtle/heading (units/unit -90))))))))
 
 (comment
   (require '[turtle-geometry.turtle.twenty-four-fold-test] :reload)

@@ -1,7 +1,6 @@
 (ns turtle-geometry.number.units.twenty
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.number.complex :as complex :refer [one i]]
-            [turtle-geometry.number.unit :as unit]
             [turtle-geometry.number.real :as real]
             [turtle-geometry.number.root :as root :refer [phi Phi]]))
 
@@ -45,10 +44,5 @@
 (comment
   (require '[turtle-geometry.number.units.twenty] :reload)
   (in-ns 'turtle-geometry.number.units.twenty)
-
-  (extend-protocol p/Unit
-    Number
-    (p/unit [angle-in-degrees]
-      (unit angle-in-degrees)))
 
   )

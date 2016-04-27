@@ -1,6 +1,6 @@
 (ns turtle-geometry.protocols
   "protocols for algebra of number and transform"
-  (:refer-clojure :exclude [zero? keyword])
+  (:refer-clojure :exclude [zero? keyword vector])
   (:require [clojure.core :as core]))
 
 ;; number
@@ -14,6 +14,9 @@
   (reciprocal [z])
   (one? [x]))
 
+(defprotocol Unit
+  (angle->complex [angle]))
+
 (defprotocol Conjugate
   (conjugate [x]))
 
@@ -24,9 +27,6 @@
 (defprotocol Evaluate
   (evaluate [x]))
 
-(defprotocol Unit
-  (unit [theta]))
-
 ;; turtle
 (defprotocol Turtle
   (move [turtle d])
@@ -36,13 +36,16 @@
   (invert [turtle]))
 
 (defprotocol Heading
-  (angle [_] "angle of heading")
-  (length [_] "length of heading"))
-(defprotocol Complex
-  (complex [_]))
+  (angle [heading] "angle of heading")
+  (length [heading] "length of heading")
+  (vector [heading] "return heading as a complex number"))
+
+(defprotocol Position
+  (point [point] "return position as a complex number"))
+
 (defprotocol Orientation
-  (value [_])
-  (keyword [_]))
+  (value [_] "return the value as +1 or -1")
+  (keyword [_] "return the keyword as :clockwise or :counter-clockwise"))
 
 ;; geometry
 (defprotocol Transform

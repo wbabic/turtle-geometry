@@ -1,6 +1,7 @@
 (ns turtle-geometry.number.root
   "square root of positive integers"
-  (:require [turtle-geometry.protocols :as p]))
+  (:require [turtle-geometry.protocols :as p]
+            [turtle-geometry.number.real]))
 
 ;; constructor functions
 (declare root)

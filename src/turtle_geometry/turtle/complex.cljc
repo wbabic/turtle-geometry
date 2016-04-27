@@ -2,24 +2,17 @@
   "a turtle implementation using complex numbers
   providing inexact representation for rotations in any angle"
   (:require [turtle-geometry.protocols :as p]
-            [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as t]
             [turtle-geometry.number :as n]
-            [turtle-geometry.number.unit :as u]
-            [turtle-geometry.number.complex :as complex]
-            [turtle-geometry.number.real]
+            [turtle-geometry.number.complex :as complex :refer [zero]]
             [turtle-geometry.number.units.polar :as units])
   (:import  [turtle_geometry.turtle Heading]))
 
-(extend-protocol p/Complex
-  Heading
-  (complex [h] (p/multiply (units/unit (:angle (:unit h))) (:length h))))
-
 (defn turtle
   "twenty-four-fold turtle constructor"
-  ([] (turtle (g/point complex/zero) (t/heading) (g/orientation)))
-  ([point] (turtle point (t/heading) (g/orientation)))
-  ([point heading] (turtle point heading (g/orientation)))
+  ([] (turtle (t/position zero) (t/heading (units/unit 0)) (t/orientation)))
+  ([point] (turtle point (t/heading (units/unit 0)) (t/orientation)))
+  ([point heading] (turtle point heading (t/orientation)))
   ([point heading orientation]
    (t/->Turtle point heading orientation)))
 
@@ -29,26 +22,32 @@
   (require '[turtle-geometry.turtle.complex] :reload)
   (in-ns 'turtle-geometry.turtle.complex)
 
-  (t/heading)
-  (p/complex (t/heading))
+  (t/heading (units/unit 0))
+  (p/angle (t/heading (units/unit 0)))
+  (p/length (t/heading (units/unit 0)))
+  (p/vector (t/heading (units/unit 0)))
+  (p/equals? complex/one (p/vector (t/heading (units/unit 0))))
+
   (t/display-turtle initial-turtle)
   (-> (turtle)
       (p/turn 15)
-      :heading p/complex)
+      :heading p/vector)
 
-  (n/rad->deg (units/angle (-> (turtle)
-                               (p/turn 15)
-                               :heading p/complex)))
+  (n/rad->deg
+   (units/angle (-> (turtle)
+                    (p/turn 15)
+                    :heading p/vector)))
   ;;=> 15.0
 
   (units/length (-> (turtle)
                     (p/turn 15)
-                    :heading p/complex))
+                    :heading p/vector))
   ;;=> 1.0
 
   ;; equals? and almost-equals?
   (p/equals? initial-turtle initial-turtle)
   (p/almost-equals? initial-turtle initial-turtle 1E-10)
+  ;;=> true
   (p/almost-equals? initial-turtle (-> initial-turtle (p/move 0.00001)) 1E-10)
   ;;=> false
   (p/almost-equals? initial-turtle (-> initial-turtle (p/move 1E-11)) 1E-10)

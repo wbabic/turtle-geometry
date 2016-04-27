@@ -3,40 +3,6 @@
   (:require [turtle-geometry.protocols :as p]))
 
 ;; primitive geometric objects
-(defrecord Point [point]
-  p/Complex
-  (complex [_] point)
-
-  p/Equality
-  (equals? [_ p]
-    (p/equals? point (:point p)))
-  (almost-equals? [_ p epsilon]
-    (p/almost-equals? point (:point p) epsilon)))
-
-(defn point [z]
-  (->Point z))
-
-(defrecord Vector [vector]
-  p/Complex
-  (complex [_] vector)
-  p/Equality
-  (p/equals? [_ v]
-    (p/equals? vector (:vector v))))
-
-(defrecord Orientation [value]
-  p/Orientation
-  (value [_] value)
-  (keyword [_] (if (= value 1)
-                 :counter-clockwise
-                 :clockwise))
-  p/Equality
-  (p/equals? [_ o]
-    (= value (p/value o))))
-
-(defn orientation
-  "constructor function for orientation"
-  ([] (orientation 1))
-  ([value] (->Orientation value)))
 
 ;; primitive geometric transforms
 (defrecord Translation [vector]
@@ -45,11 +11,11 @@
   (p/transform-fn [_]
     #(p/add % vector)))
 
-(defrecord Rotation [angle]
+(defrecord Rotation [unit]
   p/Transform
-  (p/inverse [_] (->Rotation (- angle)))
+  (p/inverse [_] (->Rotation (p/conjugate unit)))
   (p/transform-fn [_]
-    #(p/multiply % (p/unit angle))))
+    #(p/multiply % (p/angle->complex unit))))
 
 (defrecord Dilation [ratio]
   p/Transform
@@ -89,7 +55,7 @@
     (equals? [_ t]
       (condp instance? t
         Rotation
-        (== 0 (mod (:angle t) 360))
+        (== 0 (mod (-> t :unit :angle) 360))
         Translation
         (p/zero? (:vector t))
         Dilation
@@ -103,10 +69,16 @@
   ([t & ts]
    (->Composition (conj ts t))))
 
+(defrecord Reciprocal []
+  p/Transform
+  (p/inverse [reciprocal] reciprocal)
+  (p/transform-fn [_]
+    #(p/reciprocal %)))
+
+(def Inversion (compose (->Reciprocal) (->Reflection)))
+
 ;; todo
 (defrecord Mobius [a b c d])
-(defrecord Inversion [])
-(defrecord Reciprocal [])
 
 (defn mobius
   [a b c d] (->Mobius a b c d))
@@ -118,8 +90,8 @@
    (list (p/inverse f) g f)))
 
 (defn rotation
-  ([angle] (->Rotation angle))
-  ([p angle] (conjugate (->Translation p) (->Rotation angle))))
+  ([unit] (->Rotation unit))
+  ([p unit] (conjugate (->Translation p) (->Rotation unit))))
 
 (defn dilation
   ([ratio] (->Dilation ratio))
@@ -134,71 +106,45 @@
    (let [f (compose (translation point) (rotation heading))]
      (conjugate f (->Reflection)))))
 
-;; implementation of Transformable protocol for
-;; primitive geometric objects
-(extend-protocol p/Transformable
-  Vector
-  (p/transform [vector transformation]
-    (condp instance? transformation
-      Translation
-      vector
-      (update-in vector [:vector] (p/transform-fn transformation))))
-  Point
-  (p/transform [point transformation]
-    (update-in point [:point] (p/transform-fn transformation)))
+(comment
+  (defn toggle [conj]
+    (if (true? conj) false true))
 
-  Orientation
-  (p/transform [orientation transformation]
-    (condp instance? transformation
+  (defn reduce-triple
+    "apply a transform to triple"
+    [transform [a b conj]]
+    (condp instance? transform
       Reflection
-      ;; only a reflection changes orientation (and inversion)
-      (update-in orientation [:value] #(* -1 %))
+      [(p/conjugate a) (p/conjugate b) (toggle conj)]
+      Dilation
+      (let [r (:ratio transform)]
+        [(p/multiply a r) (p/multiply b r) conj])
+      Rotation
+      (let [angle (:angle transform)
+            w (p//angle->complex angle)]
+        [(p/multiply a w) (p/multiply b w) conj])
+      Translation
+      (let [v (:v transform)]
+        [a (p/add b v) conj])
+      Affine
+      (let [{:keys [a1 b1]} transform
+            c (p/multiply a a1)
+            d (p/add (p/multiply b a1) b1)]
+        [c d conj])
       Composition
-      (reduce
-       (fn [orien trans]
-         (p/transform orien trans))
-       orientation
-       (:sequence transformation))
-      orientation)))
+      (let [sequence (:sequence transform)]
+        (reduce
+         (fn [triple transform]
+           (reduce-triple transform triple))
+         [a b conj]
+         sequence))))
 
-(defn toggle [conj]
-  (if (true? conj) false true))
-
-(defn reduce-triple
-  "apply a transform to triple"
-  [transform [a b conj]]
-  (condp instance? transform
-    Reflection
-    [(p/conjugate a) (p/conjugate b) (toggle conj)]
-    Dilation
-    (let [r (:ratio transform)]
-      [(p/multiply a r) (p/multiply b r) conj])
-    Rotation
-    (let [angle (:angle transform)
-          w (p/unit angle)]
-      [(p/multiply a w) (p/multiply b w) conj])
-    Translation
-    (let [v (:v transform)]
-      [a (p/add b v) conj])
-    Affine
-    (let [{:keys [a1 b1]} transform
-          c (p/multiply a a1)
-          d (p/add (p/multiply b a1) b1)]
-      [c d conj])
-    Composition
-    (let [sequence (:sequence transform)]
-      (reduce
-       (fn [triple transform]
-         (reduce-triple transform triple))
-       [a b conj]
-       sequence))))
-
-(defn reduce-composition
-  "reduce a composition into a single transformation"
-  [composition identity-triple]
-  (let [sequence (:sequence composition)
-        [a b conj] (reduce-triple composition identity-triple)
-        affine (->Affine a b)]
-    (if (false? conj)
-      affine
-      (->Composition (list affine (->Reflection))))))
+  (defn reduce-composition
+    "reduce a composition into a single transformation"
+    [composition identity-triple]
+    (let [sequence (:sequence composition)
+          [a b conj] (reduce-triple composition identity-triple)
+          affine (->Affine a b)]
+      (if (false? conj)
+        affine
+        (->Composition (list affine (->Reflection)))))))

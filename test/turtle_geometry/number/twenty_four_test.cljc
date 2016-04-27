@@ -2,7 +2,6 @@
   "tests for the complex numbers behind the twenty-four-fold turtle"
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.number :as n]
-            [turtle-geometry.number.unit :as u]
             [turtle-geometry.number.units.twenty-four :as units]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
@@ -36,7 +35,7 @@
   (testing "that units evaluate to cos sin"
     (let [epsilon 1E-14]
       (doseq [angle (map #(* % 15) (range 25))]
-        (let [u (units/unit angle)]
+        (let [u (units/angle->complex angle)]
           (is (evaluates? epsilon angle u) (str "testing angle " angle)))))))
 
 (comment

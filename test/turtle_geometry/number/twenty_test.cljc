@@ -2,7 +2,6 @@
   "tests for the complex numbers behind the twenty-fold turtle"
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.number :as n]
-            [turtle-geometry.number.unit :as u]
             [turtle-geometry.number.units.twenty :as units]
             [turtle-geometry.number.root :as root]
             [clojure.test.check :as tc]

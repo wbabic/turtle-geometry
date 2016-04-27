@@ -13,14 +13,45 @@
 (defn length [complex]
   (Math/sqrt (length-sq complex)))
 
-(defn unit
-  ([angle] (unit angle 1))
+(defn angle->complex
+  ([angle] (angle->complex angle 1))
   ([angle length]
    (complex/complex
     (* length (Math/cos (n/deg->rad angle)))
     (* length (Math/sin (n/deg->rad angle))))))
 
+(defrecord Unit [angle]
+  p/Unit
+  (angle->complex [_] (angle->complex angle))
+
+  p/Multiplication
+  (multiply [_ u]
+    (->Unit (+ angle (:angle u))))
+  (reciprocal [_] (->Unit (- 360 angle)))
+  (one? [_] (= 0 (mod angle 360)))
+
+  p/Conjugate
+  (conjugate [_] (->Unit (- angle)))
+
+  p/Equality
+  (equals? [_ u]
+    (== 0 (mod (- angle (:angle u)) 360)))
+  (almost-equals? [_ u epsilon]
+    (p/almost-equals? 0 (mod (- angle (:angle u)) 360) epsilon)))
+
+(defn unit [angle]
+  (->Unit angle))
+
 (comment
   (require '[turtle-geometry.number.units.polar] :reload)
   (in-ns 'turtle-geometry.number.units.polar)
+
+  (p/equals? one (angle->complex 0))
+  ;;=> true
+  (n/rad->deg (angle i))
+  ;;=> 90.0
+  (p/almost-equals? i (angle->complex 90) 1E-16)
+  ;;=> true
+  (p/equals? i (angle->complex 90))
+  ;;=> false
   )

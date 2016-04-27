@@ -3,8 +3,7 @@
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.number.complex :as n]
             [turtle-geometry.number.real]
-            [turtle-geometry.number.root]
-            [turtle-geometry.number.unit :as u]))
+            [turtle-geometry.number.root]))
 
 (def ^:const PI Math/PI)
 (def ^:const TAU (* 2 PI))
@@ -37,14 +36,7 @@
   (require '[turtle-geometry.number] :reload)
   (in-ns 'turtle-geometry.number)
 
-  (p/equals? n/one
-             (reduce multiply nil))
-  (p/equals? (u/unit 90)
-             (reduce
-              multiply
-              (repeat 6 (u/unit 15))))
   (p/equals? n/one (apply multiply (repeat 4 n/i)))
-  (p/equals? (u/unit 0) (apply multiply (repeat 24 (u/unit 15))))
   (p/equals? TAU (* 2 PI))
   ;;=> true
 
