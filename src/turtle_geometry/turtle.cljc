@@ -94,10 +94,9 @@
                         (* (:length heading) distance))]
       (update-in turtle [:position :complex] #(p/add % v))))
   (p/turn [turtle angle]
-    (update-in turtle [:heading :unit :angle] #(+ % angle)))
+    (update-in turtle [:heading :unit :angle] #(+ % (* angle (:value orientation)))))
   (p/resize [turtle ratio]
-    (update-in turtle [:heading :length]
-               #(* % ratio)))
+    (update-in turtle [:heading :length] #(* % ratio)))
   (p/reflect [turtle]
     (-> turtle
         (update-in  [:heading :unit :angle] #(- %))

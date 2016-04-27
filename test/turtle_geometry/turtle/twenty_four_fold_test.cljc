@@ -107,6 +107,21 @@
       (is (p/equals? t3 (impl/turtle (turtle/position (n/complex 3 3))
                                      (turtle/heading (units/unit -90))))))))
 
+(deftest reflective-turtle
+  (testing "basic properties of a reflected turtle"
+    (let [t0 (impl/turtle)
+          t1 (-> t0 (p/reflect) (p/turn 15))
+          t (g/compose (g/->Rotation (units/unit 15)) (g/->Reflection))
+          s (turtle/home->turtle t1)]
+      (is (= -1 (-> t1 :orientation :value))
+          "a reflected turtle has reversed orientation")
+      (is (= -15 (-> t1 :heading :unit :angle))
+          "reflection changes rotation direction")
+      (is (p/equals? t1 (p/transform t0 t))
+          "t is equivalent transformation")
+      (is (p/equals? t1 (p/transform t0 s))
+          "home->turtle works as expected"))))
+
 (comment
   (require '[turtle-geometry.turtle.twenty-four-fold-test] :reload)
   (in-ns 'turtle-geometry.turtle.twenty-four-fold-test)
