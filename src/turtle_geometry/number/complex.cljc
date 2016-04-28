@@ -107,5 +107,4 @@
 (comment
   (require '[turtle-geometry.number.complex] :reload)
   (in-ns 'turtle-geometry.number.complex)
-
   )

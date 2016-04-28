@@ -5,13 +5,13 @@
             [turtle-geometry.turtle :as t]
             [turtle-geometry.number :as n]
             [turtle-geometry.number.complex :as complex :refer [zero]]
-            [turtle-geometry.number.units.polar :as units])
+            [turtle-geometry.number.units.polar :as units :refer [unit]])
   (:import  [turtle_geometry.turtle Heading]))
 
 (defn turtle
   "twenty-four-fold turtle constructor"
-  ([] (turtle (t/position zero) (t/heading (units/unit 0)) (t/orientation)))
-  ([point] (turtle point (t/heading (units/unit 0)) (t/orientation)))
+  ([] (turtle (t/position zero) (t/heading (unit 0)) (t/orientation)))
+  ([point] (turtle point (t/heading (unit 0)) (t/orientation)))
   ([point heading] (turtle point heading (t/orientation)))
   ([point heading orientation]
    (t/->Turtle point heading orientation)))
@@ -22,11 +22,11 @@
   (require '[turtle-geometry.turtle.complex] :reload)
   (in-ns 'turtle-geometry.turtle.complex)
 
-  (t/heading (units/unit 0))
-  (p/angle (t/heading (units/unit 0)))
-  (p/length (t/heading (units/unit 0)))
-  (p/vector (t/heading (units/unit 0)))
-  (p/equals? complex/one (p/vector (t/heading (units/unit 0))))
+  (t/heading (unit 0))
+  (p/angle (t/heading (unit 0)))
+  (p/length (t/heading (unit 0)))
+  (p/vector (t/heading (unit 0)))
+  (p/equals? complex/one (p/vector (t/heading (unit 0))))
 
   (t/display-turtle initial-turtle)
   (-> (turtle)

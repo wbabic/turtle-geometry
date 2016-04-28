@@ -6,13 +6,13 @@
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as t]
             [turtle-geometry.number.complex :as n]
-            [turtle-geometry.number.units.twenty-four :as units])
+            [turtle-geometry.number.units.twenty-four :as units :refer [unit]])
   (:import  [turtle_geometry.turtle Heading]))
 
 (defn turtle
   "twenty-four-fold turtle constructor"
-  ([] (turtle (t/position n/zero) (t/heading (units/unit 0)) (t/orientation)))
-  ([point] (turtle point (t/heading (units/unit 0)) (t/orientation)))
+  ([] (turtle (t/position n/zero) (t/heading (unit 0)) (t/orientation)))
+  ([point] (turtle point (t/heading (unit 0)) (t/orientation)))
   ([point heading] (turtle point heading (t/orientation)))
   ([point heading orientation]
    (t/->Turtle point heading orientation)))
@@ -23,10 +23,10 @@
   (require '[turtle-geometry.turtle.twenty-four-fold] :reload)
   (in-ns 'turtle-geometry.turtle.twenty-four-fold)
 
-  (clojure.pprint/pprint (t/heading (units/unit 15)))
-  (p/vector (t/heading (units/unit 15)))
+  (clojure.pprint/pprint (t/heading (unit 15)))
+  (p/vector (t/heading (unit 15)))
 
-  (clojure.pprint/pprint (p/vector (t/heading (units/unit 15))))
+  (clojure.pprint/pprint (p/vector (t/heading (unit 15))))
 
   (t/display-turtle initial-turtle)
   (t/display-turtle (p/move initial-turtle 10))
@@ -69,9 +69,9 @@
   (p/transform (:heading initial-turtle) (g/->Dilation 2))
   (p/transform (:orientation initial-turtle) (g/->Dilation 2))
 
-  (p/transform (:position initial-turtle) (g/->Rotation (units/unit 45)))
-  (p/transform (:heading initial-turtle) (g/->Rotation (units/unit 45)))
-  (p/transform (:orientation initial-turtle) (g/->Rotation (units/unit 45)))
+  (p/transform (:position initial-turtle) (g/->Rotation (unit 45)))
+  (p/transform (:heading initial-turtle) (g/->Rotation (unit 45)))
+  (p/transform (:orientation initial-turtle) (g/->Rotation (unit 45)))
 
   ;; simple transforms of a turtle in the plane
   (clojure.pprint/pprint
@@ -79,7 +79,7 @@
          t1 (p/transform t0 (g/->Reflection))
          t2 (p/transform t0 (g/->Dilation 2))
          t3 (p/transform t0 (g/->Translation (n/complex 2 0)))
-         t4 (p/transform t0 (g/->Rotation (units/unit 90)))]
+         t4 (p/transform t0 (g/->Rotation (unit 90)))]
      (mapv t/display-turtle [t0 t1 t2 t3 t4])))
   ;; =>
   [{:position [0 3],
@@ -103,7 +103,7 @@
         t1 (-> t0 (p/move 3) (p/turn 90))
         f (t/turtle->home t1)
         g (t/turtle-centric-transformation t1 (g/->Reflection))
-        h (t/turtle-centric-transformation t1 (g/->Rotation (units/unit -90)))
+        h (t/turtle-centric-transformation t1 (g/->Rotation (unit -90)))
         t2 (p/transform t1 f)
         t3 (p/transform t0 g)
         t4 (p/transform t0 h)]
