@@ -35,7 +35,7 @@
     (one? [_] false)
 
     p/Conjugate
-    (conjugate [_] Undefined)
+    (conjugate [_] Infinity)
 
     p/Equality
     (equals? [_ z]
