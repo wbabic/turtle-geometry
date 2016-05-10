@@ -103,8 +103,14 @@
 (defn reflection
   ([] (->Reflection))
   ([point heading]
-   (let [f (compose (translation point) (rotation heading))]
+   (let [f (compose (rotation heading) (translation point))]
      (conjugate f (->Reflection)))))
+
+(defn inversion
+  ([] Inversion)
+  ([center radius]
+   (let [f (compose (dilation radius) (translation center))]
+     (conjugate f Inversion))))
 
 (comment
   (defn toggle [conj]
