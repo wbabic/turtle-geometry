@@ -39,7 +39,7 @@
         "transform-fn of Identity is identity")))
 
 (deftest basic-transforms
-  (testing "basic properties of transforms"
+  (testing "basic properties of inversion"
     (is (p/equals? (turtle/position (complex/complex -1 0))
                    (p/transform (turtle/position complex/one)
                                 (g/reflection complex/zero (unit 90))))
@@ -71,11 +71,11 @@
     (is (p/equals? (p/transform (turtle/position complex/one)
                                 (g/inversion complex/one 1))
                    (turtle/position complex/Infinity))
-        "inversion incircle takes center to infinity")
+        "inversion in circle takes center to infinity")
     (is (p/equals? (p/transform (turtle/position complex/Infinity)
                                 (g/inversion complex/one 1))
                    (turtle/position complex/one))
-        "inversion incircle takes infinity to center")))
+        "inversion in circle takes infinity to center")))
 
 (comment
   (require '[turtle-geometry.geometry-test] :reload)
