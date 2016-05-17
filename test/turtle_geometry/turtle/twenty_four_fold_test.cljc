@@ -55,20 +55,20 @@
 (deftest basic-trans
   (testing "the basic transformations behave as expected"
     (let [initial-turtle (impl/turtle)]
-      (is (p/equals? (p/transform (turtle/heading (unit 0)) (g/->Rotation (unit 15)))
-                     (turtle/heading (unit 15)))
+      (is (p/equals? (p/transform (g/heading (unit 0)) (g/->Rotation (unit 15)))
+                     (g/heading (unit 15)))
           "heading transforms")
       (is (p/equals? (p/transform initial-turtle
                                   (g/->Translation (n/complex 2 3)))
-                     (impl/turtle (turtle/position (n/complex 2 3))))
+                     (impl/turtle (g/position (n/complex 2 3))))
           "translate turtle")
       (is (p/equals? (p/transform
                       initial-turtle
                       (g/compose
                        (g/->Rotation (unit 15))
                        (g/->Translation (n/complex 2 3))))
-                     (impl/turtle (turtle/position (n/complex 2 3))
-                                  (turtle/heading (unit 15))))
+                     (impl/turtle (g/position (n/complex 2 3))
+                                  (g/heading (unit 15))))
           "rotate and translate turtle")
       (is (p/equals? (p/transform
                       initial-turtle
@@ -76,9 +76,9 @@
                        (g/->Reflection)
                        (g/->Rotation (unit 15))
                        (g/->Translation (n/complex 2 3))))
-                     (impl/turtle (turtle/position (n/complex 2 3))
-                                  (turtle/heading (unit 15))
-                                  (turtle/orientation -1)))
+                     (impl/turtle (g/position (n/complex 2 3))
+                                  (g/heading (unit 15))
+                                  (g/orientation -1)))
           "rotate, translate and reflect turtle"))))
 
 (deftest turtle->home
@@ -101,11 +101,11 @@
           h (turtle/turtle-centric-transformation t1 (g/->Rotation (unit -90)))
           t2 (p/transform t0 g)
           t3 (p/transform t0 h)]
-      (is (p/equals? t2 (impl/turtle (turtle/position (n/complex 6 0))
-                                     (turtle/heading (unit 180))
-                                     (turtle/orientation -1))))
-      (is (p/equals? t3 (impl/turtle (turtle/position (n/complex 3 3))
-                                     (turtle/heading (unit -90))))))))
+      (is (p/equals? t2 (impl/turtle (g/position (n/complex 6 0))
+                                     (g/heading (unit 180))
+                                     (g/orientation -1))))
+      (is (p/equals? t3 (impl/turtle (g/position (n/complex 3 3))
+                                     (g/heading (unit -90))))))))
 
 (deftest reflective-turtle
   (testing "basic properties of a reflected turtle"

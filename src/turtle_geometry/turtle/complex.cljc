@@ -3,16 +3,17 @@
   providing inexact representation for rotations in any angle"
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.turtle :as t]
+            [turtle-geometry.geometry :as g]
             [turtle-geometry.number :as n]
             [turtle-geometry.number.complex :as complex :refer [zero]]
             [turtle-geometry.number.units.polar :as units :refer [unit]])
-  (:import  [turtle_geometry.turtle Heading]))
+  (:import  [turtle_geometry.geometry Heading]))
 
 (defn turtle
   "twenty-four-fold turtle constructor"
-  ([] (turtle (t/position zero) (t/heading (unit 0)) (t/orientation)))
-  ([point] (turtle point (t/heading (unit 0)) (t/orientation)))
-  ([point heading] (turtle point heading (t/orientation)))
+  ([] (turtle (g/position zero) (g/heading (unit 0)) (g/orientation)))
+  ([point] (turtle point (g/heading (unit 0)) (g/orientation)))
+  ([point heading] (turtle point heading (g/orientation)))
   ([point heading orientation]
    (t/->Turtle point heading orientation)))
 
@@ -22,11 +23,11 @@
   (require '[turtle-geometry.turtle.complex] :reload)
   (in-ns 'turtle-geometry.turtle.complex)
 
-  (t/heading (unit 0))
-  (p/angle (t/heading (unit 0)))
-  (p/length (t/heading (unit 0)))
-  (p/vector (t/heading (unit 0)))
-  (p/equals? complex/one (p/vector (t/heading (unit 0))))
+  (g/heading (unit 0))
+  (p/angle (g/heading (unit 0)))
+  (p/length (g/heading (unit 0)))
+  (p/vector (g/heading (unit 0)))
+  (p/equals? complex/one (p/vector (g/heading (unit 0))))
 
   (t/display-turtle initial-turtle)
   (-> (turtle)

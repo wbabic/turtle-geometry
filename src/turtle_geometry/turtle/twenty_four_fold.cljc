@@ -7,13 +7,13 @@
             [turtle-geometry.turtle :as t]
             [turtle-geometry.number.complex :as n]
             [turtle-geometry.number.units.twenty-four :as units :refer [unit]])
-  (:import  [turtle_geometry.turtle Heading]))
+  (:import  [turtle_geometry.geometry Heading]))
 
 (defn turtle
   "twenty-four-fold turtle constructor"
-  ([] (turtle (t/position n/zero) (t/heading (unit 0)) (t/orientation)))
-  ([point] (turtle point (t/heading (unit 0)) (t/orientation)))
-  ([point heading] (turtle point heading (t/orientation)))
+  ([] (turtle (g/position n/zero) (g/heading (unit 0)) (g/orientation)))
+  ([point] (turtle point (g/heading (unit 0)) (g/orientation)))
+  ([point heading] (turtle point heading (g/orientation)))
   ([point heading orientation]
    (t/->Turtle point heading orientation)))
 
@@ -23,10 +23,10 @@
   (require '[turtle-geometry.turtle.twenty-four-fold] :reload)
   (in-ns 'turtle-geometry.turtle.twenty-four-fold)
 
-  (clojure.pprint/pprint (t/heading (unit 15)))
-  (p/vector (t/heading (unit 15)))
+  (clojure.pprint/pprint (g/heading (unit 15)))
+  (p/vector (g/heading (unit 15)))
 
-  (clojure.pprint/pprint (p/vector (t/heading (unit 15))))
+  (clojure.pprint/pprint (p/vector (g/heading (unit 15))))
 
   (t/display-turtle initial-turtle)
   (t/display-turtle (p/move initial-turtle 10))
