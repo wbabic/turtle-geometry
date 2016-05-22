@@ -40,9 +40,9 @@
 
 (deftest basic-transforms
   (testing "basic properties of inversion"
-    (is (p/equals? (g/position (complex/complex -1 0))
-                   (p/transform (g/position complex/one)
-                                (g/reflection complex/zero (unit 90))))
+    (is (p/equals? (p/transform (g/position complex/one)
+                                (g/reflection complex/zero (unit 90)))
+                   (g/position (complex/complex -1 0)))
         "reflection about y-axis transforms one to -one")
     (is (p/equals? (p/transform (g/position (complex/complex 2 0))
                                 (g/reflection complex/one (unit 90)))

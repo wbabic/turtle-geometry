@@ -2,8 +2,6 @@
   "basic geometric objects and transforms provide functions of complex number"
   (:require [turtle-geometry.protocols :as p]))
 
-;; primitive geometric objects
-
 ;; primitive geometric transforms
 (defrecord Translation [vector]
   p/Transform
@@ -112,51 +110,7 @@
    (let [f (compose (dilation radius) (translation center))]
      (conjugate f Inversion))))
 
-(comment
-  (defn toggle [conj]
-    (if (true? conj) false true))
-
-  (defn reduce-triple
-    "apply a transform to triple"
-    [transform [a b conj]]
-    (condp instance? transform
-      Reflection
-      [(p/conjugate a) (p/conjugate b) (toggle conj)]
-      Dilation
-      (let [r (:ratio transform)]
-        [(p/multiply a r) (p/multiply b r) conj])
-      Rotation
-      (let [angle (:angle transform)
-            w (p//angle->complex angle)]
-        [(p/multiply a w) (p/multiply b w) conj])
-      Translation
-      (let [v (:v transform)]
-        [a (p/add b v) conj])
-      Affine
-      (let [{:keys [a1 b1]} transform
-            c (p/multiply a a1)
-            d (p/add (p/multiply b a1) b1)]
-        [c d conj])
-      Composition
-      (let [sequence (:sequence transform)]
-        (reduce
-         (fn [triple transform]
-           (reduce-triple transform triple))
-         [a b conj]
-         sequence))))
-
-  (defn reduce-composition
-    "reduce a composition into a single transformation"
-    [composition identity-triple]
-    (let [sequence (:sequence composition)
-          [a b conj] (reduce-triple composition identity-triple)
-          affine (->Affine a b)]
-      (if (false? conj)
-        affine
-        (->Composition (list affine (->Reflection)))))))
-
-;; geometry
-
+;; primitive geometric objects
 (defrecord Position [complex]
   p/Position
   (point [_] complex)
@@ -238,3 +192,54 @@
   "constructor function for orientation"
   ([] (orientation 1))
   ([value] (->Orientation value)))
+
+(defrecord Circle [center radius])
+(defrecord Line [p1 p2])
+
+(defn circle
+  "create circle with center at given position with given radius"
+  [center-point radius]
+  (->Circle center-point radius))
+
+(comment
+  (defn toggle [conj]
+    (if (true? conj) false true))
+
+  (defn reduce-triple
+    "apply a transform to triple"
+    [transform [a b conj]]
+    (condp instance? transform
+      Reflection
+      [(p/conjugate a) (p/conjugate b) (toggle conj)]
+      Dilation
+      (let [r (:ratio transform)]
+        [(p/multiply a r) (p/multiply b r) conj])
+      Rotation
+      (let [angle (:angle transform)
+            w (p//angle->complex angle)]
+        [(p/multiply a w) (p/multiply b w) conj])
+      Translation
+      (let [v (:v transform)]
+        [a (p/add b v) conj])
+      Affine
+      (let [{:keys [a1 b1]} transform
+            c (p/multiply a a1)
+            d (p/add (p/multiply b a1) b1)]
+        [c d conj])
+      Composition
+      (let [sequence (:sequence transform)]
+        (reduce
+         (fn [triple transform]
+           (reduce-triple transform triple))
+         [a b conj]
+         sequence))))
+
+  (defn reduce-composition
+    "reduce a composition into a single transformation"
+    [composition identity-triple]
+    (let [sequence (:sequence composition)
+          [a b conj] (reduce-triple composition identity-triple)
+          affine (->Affine a b)]
+      (if (false? conj)
+        affine
+        (->Composition (list affine (->Reflection)))))))

@@ -83,5 +83,4 @@
   (clojure.test/run-tests)
   (tc/quick-check 100 additive-inverse-root-prop)
   (tc/quick-check 100 multiplicative-inverse-root-prop)
-
   )
