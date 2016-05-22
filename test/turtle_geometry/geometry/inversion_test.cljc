@@ -44,4 +44,6 @@
 (comment
   (require '[turtle-geometry.geometry.inversion-test] :reload)
   (in-ns 'turtle-geometry.geometry.inversion-test)
-  (clojure.test/run-tests))
+  (clojure.test/run-tests)
+  (clojure.pprint/pprint (gen/sample circle-gen))
+  )
