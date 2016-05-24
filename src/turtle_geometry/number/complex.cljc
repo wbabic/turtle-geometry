@@ -104,6 +104,12 @@
   [{:keys [x y]}]
   (->Complex y x))
 
+(defn length-sq [{:keys [x y]}]
+  (+ (* x x) (* y y)))
+
+(defn length [z]
+  (Math/sqrt (length-sq z)))
+
 (comment
   (require '[turtle-geometry.number.complex] :reload)
   (in-ns 'turtle-geometry.number.complex)
