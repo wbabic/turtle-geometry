@@ -61,7 +61,7 @@
       (is (p/equals? (p/transform initial-turtle
                                   (g/->Translation (n/complex 2 3)))
                      (impl/turtle (g/position (n/complex 2 3))))
-          "translate turtle")
+          "turtle translates")
       (is (p/equals? (p/transform
                       initial-turtle
                       (g/compose
@@ -69,7 +69,7 @@
                        (g/->Translation (n/complex 2 3))))
                      (impl/turtle (g/position (n/complex 2 3))
                                   (g/heading (unit 15))))
-          "rotate and translate turtle")
+          "turtle rotates and translates")
       (is (p/equals? (p/transform
                       initial-turtle
                       (g/compose
@@ -79,7 +79,7 @@
                      (impl/turtle (g/position (n/complex 2 3))
                                   (g/heading (unit 15))
                                   (g/orientation -1)))
-          "rotate, translate and reflect turtle"))))
+          "turtle rotates, translates and reflects"))))
 
 (deftest turtle->home
   (testing "the transformation that brings a turtle home"
@@ -111,7 +111,7 @@
   (testing "basic properties of a reflected turtle"
     (let [t0 (impl/turtle)
           t1 (-> t0 (p/reflect) (p/turn 15))
-          t (g/compose (g/->Rotation (unit 15)) (g/->Reflection))
+          t (g/compose (g/rotation (unit 15)) (g/reflection))
           s (turtle/home->turtle t1)]
       (is (= -1 (-> t1 :orientation :value))
           "a reflected turtle has reversed orientation")
@@ -127,4 +127,5 @@
   (in-ns 'turtle-geometry.turtle.twenty-four-fold-test)
   (use 'clojure.repl)
   (clojure.test/run-tests)
+
  )

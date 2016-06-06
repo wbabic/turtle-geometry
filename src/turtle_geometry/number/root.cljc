@@ -100,7 +100,7 @@
          reduced (reduce
                   (fn [result ratio-or-root]
                     (cond
-                      (or (integer? ratio-or-root) (ratio? ratio-or-root))
+                      (number? ratio-or-root)
                       (update-in result [:ratio] #(+ % ratio-or-root))
 
                       (instance? Root ratio-or-root)
@@ -153,7 +153,7 @@
   p/Addition
   (p/add [x y]
     (cond
-      (or (integer? y) (ratio? y))
+      (number? y)
       (apply rat-roots (+ ratio y) roots)
 
       (instance? Root y)

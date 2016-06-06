@@ -21,16 +21,16 @@
 
 (deftest infinity
   (testing "basic properties of infinity"
-    (is (c/infinity? c/Infinity))
-    (is (c/undefined? (p/negative c/Infinity)))
-    (is (p/zero? (p/reciprocal c/Infinity)))
+    (is (c/infinity? c/infinity))
+    (is (c/isundefined? (p/negative c/infinity)))
+    (is (p/zero? (p/reciprocal c/infinity)))
     (is (c/infinity? (p/reciprocal c/zero)))
-    (is (c/infinity? (p/add c/Infinity c/one)))
-    (is (c/infinity? (p/add c/one c/Infinity)))
-    (is (c/infinity? (p/multiply c/i c/Infinity)))
-    (is (c/infinity? (p/multiply c/Infinity c/i)))
-    (is (c/undefined? (p/multiply c/zero c/Infinity)))
-    (is (c/undefined? (p/multiply c/Infinity c/zero)))))
+    (is (c/infinity? (p/add c/infinity c/one)))
+    (is (c/infinity? (p/add c/one c/infinity)))
+    (is (c/infinity? (p/multiply c/i c/infinity)))
+    (is (c/infinity? (p/multiply c/infinity c/i)))
+    (is (c/isundefined? (p/multiply c/zero c/infinity)))
+    (is (c/isundefined? (p/multiply c/infinity c/zero)))))
 
 (comment
   (require '[turtle-geometry.number.complex-test] :reload)

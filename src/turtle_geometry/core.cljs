@@ -2,7 +2,8 @@
   (:require
    [devcards.core]
    [reagent.core :as reagent]
-   [sablono.core :as sab :include-macros true])
+   [sablono.core :as sab :include-macros true]
+   [turtle-geometry.devcards.intro])
   (:require-macros
    [reagent.ratom :as ratom :refer [reaction]]
    [devcards.core :as dc :refer [defcard deftest defcard-rg defcard-doc]]))

@@ -46,4 +46,7 @@
   (in-ns 'turtle-geometry.geometry.inversion-test)
   (clojure.test/run-tests)
   (clojure.pprint/pprint (gen/sample circle-gen))
+  (complex/length (complex/complex 1 1))
+  (complex/difference complex/one complex/i)
+  (complex/distance complex/one complex/i)
   )

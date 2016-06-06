@@ -1,7 +1,6 @@
-(ns turtle-geometry.protocols
+ (ns turtle-geometry.protocols
   "protocols for algebra of number and transform"
-  (:refer-clojure :exclude [zero? keyword vector])
-  (:require [clojure.core :as core]))
+  (:refer-clojure :exclude [zero? keyword vector]))
 
 ;; number
 (defprotocol Addition

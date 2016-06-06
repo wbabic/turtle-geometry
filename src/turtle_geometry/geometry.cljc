@@ -3,21 +3,23 @@
   (:require [turtle-geometry.protocols :as p]))
 
 ;; primitive geometric transforms
+(declare translation rotation dilation affine compose position orientation reflection)
+
 (defrecord Translation [vector]
   p/Transform
-  (p/inverse [_] (->Translation (p/negative vector)))
+  (p/inverse [_] (translation (p/negative vector)))
   (p/transform-fn [_]
     #(p/add % vector)))
 
 (defrecord Rotation [unit]
   p/Transform
-  (p/inverse [_] (->Rotation (p/conjugate unit)))
+  (p/inverse [_] (rotation (p/conjugate unit)))
   (p/transform-fn [_]
     #(p/multiply % (p/angle->complex unit))))
 
 (defrecord Dilation [ratio]
   p/Transform
-  (p/inverse [_] (->Dilation (/ ratio)))
+  (p/inverse [_] (dilation (/ ratio)))
   (p/transform-fn [_]
     #(p/multiply % ratio)))
 
@@ -26,7 +28,7 @@
   (p/inverse [_]
     (let [c (p/reciprocal a)
           d (p/multiply (p/negative b) (p/reciprocal a))]
-      (->Affine c d)))
+      (affine c d)))
   (p/transform-fn [_]
     #(p/add (p/multiply % a) b)))
 
@@ -39,7 +41,7 @@
 (defrecord Composition [sequence]
   p/Transform
   (p/inverse [_]
-    (->Composition (reverse (map p/inverse sequence))))
+    (apply compose (reverse (map p/inverse sequence))))
   (p/transform-fn [_]
     (apply comp (reverse (map p/transform-fn sequence)))))
 
@@ -78,14 +80,14 @@
 ;; todo
 (defrecord Mobius [a b c d])
 
-(defn mobius
-  [a b c d] (->Mobius a b c d))
-
 (defn conjugate
   "conjugate of transformation g by transformation f"
   [f g]
   (->Composition
    (list (p/inverse f) g f)))
+
+(defn translation
+  [z] (->Translation z))
 
 (defn rotation
   ([unit] (->Rotation unit))
@@ -95,20 +97,24 @@
   ([ratio] (->Dilation ratio))
   ([p ratio] (conjugate (->Translation p) (->Dilation ratio))))
 
-(defn translation
-  [z] (->Translation z))
-
 (defn reflection
   ([] (->Reflection))
   ([point heading]
    (let [f (compose (rotation heading) (translation point))]
      (conjugate f (->Reflection)))))
 
+(defn affine
+  [c d]
+  (->Affine c d))
+
 (defn inversion
   ([] Inversion)
   ([center radius]
    (let [f (compose (dilation radius) (translation center))]
      (conjugate f Inversion))))
+
+(defn mobius
+  [a b c d] (->Mobius a b c d))
 
 ;; primitive geometric objects
 (defrecord Position [complex]
@@ -117,7 +123,7 @@
 
   p/Transformable
   (transform [_ transformation]
-    (->Position ((p/transform-fn transformation) complex)))
+    (position ((p/transform-fn transformation) complex)))
 
   p/Equality
   (equals? [_ p]
@@ -173,16 +179,16 @@
                  :clockwise))
 
   p/Transformable
-  (transform [orientation transformation]
+  (transform [o transformation]
     (condp instance? transformation
-      Reflection (->Orientation (- value))
+      Reflection (orientation (- value))
       Composition
       (reduce
        (fn [orien trans]
          (p/transform orien trans))
-       orientation
+       o
        (:sequence transformation))
-      orientation))
+      o))
 
   p/Equality
   (p/equals? [_ o]
@@ -216,7 +222,7 @@
         [(p/multiply a r) (p/multiply b r) conj])
       Rotation
       (let [angle (:angle transform)
-            w (p//angle->complex angle)]
+            w (p/angle->complex angle)]
         [(p/multiply a w) (p/multiply b w) conj])
       Translation
       (let [v (:v transform)]

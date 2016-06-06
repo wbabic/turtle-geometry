@@ -6,8 +6,7 @@
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as t]
             [turtle-geometry.number.complex :as n]
-            [turtle-geometry.number.units.twenty-four :as units :refer [unit]])
-  (:import  [turtle_geometry.geometry Heading]))
+            [turtle-geometry.number.units.twenty-four :as units :refer [unit]]))
 
 (defn turtle
   "twenty-four-fold turtle constructor"
@@ -35,12 +34,6 @@
       (p/move 10)
       :position
       :complex :x)
-  #turtle_geometry.number.root.RationalRoot
-  {:ratio 0,
-   :roots (#turtle_geometry.number.root.Root
-           {:base 2, :multiplier 5/2}
-           #turtle_geometry.number.root.Root
-           {:base 6, :multiplier 5/2})}
 
   ;; move a turtle about
   (-> initial-turtle

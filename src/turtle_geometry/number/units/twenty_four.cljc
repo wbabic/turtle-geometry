@@ -8,12 +8,12 @@
 ;; and the Pythagorean theorem
 (def unit-45
   (let [x (p/multiply root/rt2 (/ 2))]
-    (complex/->Complex x x)))
+    (complex/complex x x)))
 
 ;; from an equilateral triangle
 (def unit-60
   (let [y (p/multiply root/rt3 (/ 2))]
-    (complex/->Complex (/ 2) y)))
+    (complex/complex (/ 2) y)))
 
 (def unit-30 (complex/swap-x-y unit-60))
 
@@ -46,18 +46,20 @@
       (angle->complex-map a)
       (p/multiply (p/negative one) (angle->complex-map (- a 180))))))
 
+(declare unit)
+
 (defrecord Unit [angle]
   p/Unit
   (p/angle->complex [_] (angle->complex angle))
 
   p/Multiplication
   (multiply [_ u]
-    (->Unit (+ angle (:angle u))))
-  (reciprocal [_] (->Unit (- 360 angle)))
+    (unit (+ angle (:angle u))))
+  (reciprocal [_] (unit (- 360 angle)))
   (one? [_] (= 0 (mod angle 360)))
 
   p/Conjugate
-  (conjugate [_] (->Unit (- angle)))
+  (conjugate [_] (unit (- angle)))
 
   p/Equality
   (equals? [_ u]
@@ -77,17 +79,6 @@
   (unit 15)
   (angle->complex 15)
   (p/angle->complex (unit 15))
-
-  unit-15
-  #turtle_geometry.number.complex.Complex
-  {:x #turtle_geometry.number.root.RationalRoot
-   {:ratio 0,
-    :roots (#turtle_geometry.number.root.Root{:base 2, :multiplier 1/4}
-            #turtle_geometry.number.root.Root{:base 6, :multiplier 1/4})},
-   :y #turtle_geometry.number.root.RationalRoot
-   {:ratio 0,
-    :roots (#turtle_geometry.number.root.Root{:base 2, :multiplier -1/4}
-            #turtle_geometry.number.root.Root{:base 6, :multiplier 1/4})}}
 
   ;; units of the first quadrant
   (map clojure.pprint/pprint

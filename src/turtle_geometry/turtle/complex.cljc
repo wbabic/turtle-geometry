@@ -6,8 +6,7 @@
             [turtle-geometry.geometry :as g]
             [turtle-geometry.number :as n]
             [turtle-geometry.number.complex :as complex :refer [zero]]
-            [turtle-geometry.number.units.polar :as units :refer [unit]])
-  (:import  [turtle_geometry.geometry Heading]))
+            [turtle-geometry.number.units.polar :as units :refer [unit]]))
 
 (defn turtle
   "twenty-four-fold turtle constructor"

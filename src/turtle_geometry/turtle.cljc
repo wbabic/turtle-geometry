@@ -2,8 +2,7 @@
   "A transformable turtle making use of geometric transformations"
   (:require
    [turtle-geometry.protocols :as p]
-   [turtle-geometry.geometry :as g])
-  (:import  [turtle_geometry.geometry Translation Rotation Dilation Reflection Composition]))
+   [turtle-geometry.geometry :as g]))
 
 (defrecord Turtle [position heading orientation]
   p/Turtle
@@ -47,12 +46,12 @@
   "the transformation that brings the home turtle to the given turtle"
   [{:keys [position heading orientation]}]
   (let [ts (list
-            (g/->Rotation    (:unit heading))
-            (g/->Dilation    (:length heading))
-            (g/->Translation (:complex position)))]
+            (g/rotation    (:unit heading))
+            (g/dilation    (:length heading))
+            (g/translation (:complex position)))]
     (if (= :counter-clockwise (p/keyword orientation))
       (apply g/compose ts)
-      (apply g/compose (g/->Reflection) ts))))
+      (apply g/compose (g/reflection) ts))))
 
 (defn turtle->home
   "the transformation that brings the given turtle home"

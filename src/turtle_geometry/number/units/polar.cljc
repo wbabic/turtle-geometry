@@ -20,18 +20,20 @@
     (* length (Math/cos (n/deg->rad angle)))
     (* length (Math/sin (n/deg->rad angle))))))
 
+(declare unit)
+
 (defrecord Unit [angle]
   p/Unit
   (angle->complex [_] (angle->complex angle))
 
   p/Multiplication
   (multiply [_ u]
-    (->Unit (+ angle (:angle u))))
-  (reciprocal [_] (->Unit (- 360 angle)))
+    (unit (+ angle (:angle u))))
+  (reciprocal [_] (unit (- 360 angle)))
   (one? [_] (= 0 (mod angle 360)))
 
   p/Conjugate
-  (conjugate [_] (->Unit (- angle)))
+  (conjugate [_] (unit (- angle)))
 
   p/Equality
   (equals? [_ u]

@@ -46,7 +46,7 @@
   "return a list of roots with like bases collected and zero multipliers removed"
   ([] nil)
   ([& roots]
-   (assert (every? #(instance? Root %) roots))
+   (assert (every? #(root? %) roots))
    (let [reduced (reduce
                   (fn [result root]
                     (let [base (:base root)
@@ -72,7 +72,7 @@
          reduced (reduce
                   (fn [result ratio-or-root]
                     (cond
-                      (or (integer? ratio-or-root) (ratio? ratio-or-root))
+                      (number? ratio-or-root)
                       (update-in result [:ratio] #(+ % ratio-or-root))
 
                       (root? ratio-or-root)

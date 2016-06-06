@@ -1,81 +1,79 @@
 (ns turtle-geometry.number.complex
-  "complex number implementation using rational roots
-  providing units in multiples of 15 degrees"
+  "complex number implementation with infinity"
   (:require [turtle-geometry.protocols :as p]))
 
-(def Undefined
+(def undefined
   (reify
     p/Addition
-    (add [undefined w] undefined)
-    (negative [undefined] undefined)
+    (add [z _] z)
+    (negative [z] z)
     (zero? [_] false)
     p/Multiplication
-    (multiply [undefined _] undefined)
-    (reciprocal [undefined] undefined)
+    (multiply [z _] z)
+    (reciprocal [z] z)
     (one? [_] false)
     p/Equality
     (equals? [_ z]
-      (= z Undefined))))
+      (= z undefined))))
 
-(defn undefined? [w] (= w Undefined))
+(declare zero complex)
 
-(declare zero)
-
-(def Infinity
+(def infinity
   (reify
     p/Addition
-    (add [infinity w] infinity)
-    (negative [infinity] Undefined)
+    (add [z _] z)
+    (negative [z] undefined)
     (zero? [_] false)
 
     p/Multiplication
-    (multiply [infinity w]
-      (if (p/zero? w) Undefined infinity))
+    (multiply [z w]
+      (if (p/zero? w) undefined infinity))
     (reciprocal [_] zero)
     (one? [_] false)
 
     p/Conjugate
-    (conjugate [_] Infinity)
+    (conjugate [_] infinity)
 
     p/Equality
     (equals? [_ z]
-      (= z Infinity))))
+      (= z infinity))))
 
-(defn infinity? [z] (= Infinity z))
+(defn isundefined? [z] (= undefined z))
+(defn infinity? [z] (= infinity z))
 
 (defrecord Complex [x y]
   p/Addition
   (add [_ w]
-    (if (infinity? w) Infinity
-        (->Complex (p/add x (:x w))
+    (if (infinity? w) infinity
+        (complex (p/add x (:x w))
                    (p/add y (:y w)))))
   (negative [_]
-    (->Complex (p/negative x) (p/negative y)))
+    (complex (p/negative x) (p/negative y)))
   (zero? [_]
     (and (zero? x) (zero? y)))
 
   p/Multiplication
   (multiply [z w]
     (cond (number? w)
-          (->Complex (p/multiply x w) (p/multiply y w))
-          (infinity? w) (if (p/zero? z) Undefined Infinity)
+          (complex (p/multiply x w) (p/multiply y w))
+          (infinity? w) (if (p/zero? z) undefined infinity)
           :else
-          (->Complex (p/add (p/multiply x (:x w))
+          (complex (p/add (p/multiply x (:x w))
                             (p/negative (p/multiply y (:y w))))
                      (p/add (p/multiply x (:y w))
                             (p/multiply y (:x w))))))
   (reciprocal [z]
-    (if (p/zero? z) Infinity
+    (if (p/zero? z) infinity
         (let [r (+ (p/multiply x x) (p/multiply y y))
               r-recip (p/reciprocal r)]
-          (->Complex (p/multiply x r-recip)
+          (complex (p/multiply x r-recip)
                      (p/multiply (p/negative y) r-recip)))))
   (one? [_]
     (and (p/equals? x 1) (p/equals? y 0)))
 
   p/Conjugate
   (conjugate [_]
-    (->Complex x (p/negative y)))
+    (complex x (p/negative y)))
 
   p/Equality
   (equals? [_ w]
@@ -97,7 +95,6 @@
 (def zero (complex 0 0))
 (def one (complex 1 0))
 (def i (complex 0 1))
-(def infinity Infinity)
 
 (defn swap-x-y
   "reflect in y=x axis"
@@ -109,6 +106,21 @@
 
 (defn length [z]
   (Math/sqrt (length-sq z)))
+
+(defn difference
+  "returns the vector from z to w"
+  [z w]
+  (p/add (p/negative z) w))
+
+(defn distance-sq
+  "return the distance between z and w"
+  [z w]
+  (length-sq (difference z w)))
+
+(defn distance
+  "return the distance between z and w"
+  [z w]
+  (length (difference z w)))
 
 (comment
   (require '[turtle-geometry.number.complex] :reload)
