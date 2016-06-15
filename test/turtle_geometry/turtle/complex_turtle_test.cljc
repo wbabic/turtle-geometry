@@ -2,8 +2,7 @@
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as turtle]
-            [turtle-geometry.turtle.complex :as impl]
-            [turtle-geometry.number.complex :as n]
+            [turtle-geometry.number :as n]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj
@@ -18,14 +17,14 @@
 ;; twenty four fold turtle
 (deftest twenty-four-fold
   (testing "24 turns brings a turtle home"
-    (let [initial-turtle impl/initial-turtle
+    (let [initial-turtle turtle/initial-turtle
           transformed-turtle (last (take 25
                                          (iterate #(p/turn % 15) initial-turtle)))]
       (is (p/equals? initial-turtle transformed-turtle)))))
 
 (deftest twenty-four-fold-from
   (testing "24 turns brings a turtle home, but not always exactly"
-    (let [t0 impl/initial-turtle
+    (let [t0 turtle/initial-turtle
           t1 (-> t0 (p/turn 3) (p/move 1))
           t2 (last (take 25 (iterate #(p/turn % 15) t1)))
           t3 (-> t2 (p/move -1) (p/turn -3))]

@@ -1,6 +1,7 @@
 (ns turtle-geometry.geometry
   "basic geometric objects and transforms provide functions of complex number"
-  (:require [turtle-geometry.protocols :as p]))
+  (:require [turtle-geometry.protocols :as p]
+            [turtle-geometry.number :as n]))
 
 ;; primitive geometric transforms
 (declare translation rotation dilation affine compose position orientation reflection)
@@ -59,7 +60,7 @@
         Translation
         (p/zero? (:vector t))
         Dilation
-        (p/one? (:ratio t))
+        (== 1 (:ratio t))
         false))))
 
 (defn compose
@@ -163,7 +164,7 @@
     (and (== length (:length h))
          (p/equals? unit (:unit h))))
   (almost-equals? [_ h epsilon]
-    (and (p/almost-equals? length (:length h) epsilon)
+    (and (n/almost-equals? length (:length h) epsilon)
          (p/almost-equals? unit (:unit h) epsilon))))
 
 (defn heading

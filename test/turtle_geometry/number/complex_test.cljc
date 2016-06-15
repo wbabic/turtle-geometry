@@ -1,7 +1,7 @@
 (ns turtle-geometry.number.complex-test
   "tests for Complex number"
   (:require [turtle-geometry.protocols :as p]
-            [turtle-geometry.number.complex :as c]
+            [turtle-geometry.number :as c]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj

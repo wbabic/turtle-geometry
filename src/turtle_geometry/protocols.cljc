@@ -49,7 +49,7 @@
 ;; geometry
 (defprotocol Transform
   (inverse [transformation])
-  (transform-fn [transform]))
+  (transform-fn [transformation]))
 
 (defprotocol Transformable
   (transform [object transformation]))

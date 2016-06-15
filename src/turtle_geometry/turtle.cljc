@@ -2,6 +2,7 @@
   "A transformable turtle making use of geometric transformations"
   (:require
    [turtle-geometry.protocols :as p]
+   [turtle-geometry.number :as n :refer [one zero unit]]
    [turtle-geometry.geometry :as g]))
 
 (defrecord Turtle [position heading orientation]
@@ -36,6 +37,16 @@
          (p/almost-equals? position (:position turtle) epsilon)
          (p/equals? orientation (:orientation turtle)))))
 
+(defn turtle
+  "twenty-four-fold turtle constructor"
+  ([] (turtle (g/position zero) (g/heading (unit 0)) (g/orientation)))
+  ([point] (turtle point (g/heading (unit 0)) (g/orientation)))
+  ([point heading] (turtle point heading (g/orientation)))
+  ([point heading orientation]
+   (->Turtle point heading orientation)))
+
+(def initial-turtle (turtle))
+
 (defn display-turtle
   [{:keys [position heading orientation]}]
   {:position (p/evaluate (p/point position))
@@ -63,3 +74,53 @@
   wrt given turtle"
   [turtle trans]
   (g/conjugate (home->turtle turtle) trans))
+
+
+(comment
+  (require '[turtle-geometry.turtle] :reload)
+  (in-ns 'turtle-geometry.turtle)
+
+  (g/heading (unit 0))
+  (p/angle (g/heading (unit 0)))
+  (p/length (g/heading (unit 0)))
+  (p/vector (g/heading (unit 0)))
+  (p/equals? one (p/vector (g/heading (unit 0))))
+
+  (display-turtle initial-turtle)
+  (-> (turtle)
+      (p/turn 15)
+      :heading p/vector)
+
+  (n/rad->deg
+   (n/angle (-> (turtle)
+                    (p/turn 15)
+                    :heading p/vector)))
+  ;;=> 15.0
+
+  (n/length (-> (turtle)
+                (p/turn 15)
+                :heading p/vector))
+  ;;=> 1.0
+
+  ;; equals? and almost-equals?
+  (p/equals? initial-turtle initial-turtle)
+  (p/almost-equals? initial-turtle initial-turtle 1E-10)
+  ;;=> true
+  (p/almost-equals? initial-turtle (-> initial-turtle (p/move 0.00001)) 1E-10)
+  ;;=> false
+  (p/almost-equals? initial-turtle (-> initial-turtle (p/move 1E-11)) 1E-10)
+  ;;=> true
+  (p/equals? initial-turtle (-> initial-turtle (p/move 1E-11)))
+  ;;=> false
+
+  (clojure.pprint/pprint
+   (let [t0 initial-turtle
+         t1 (-> initial-turtle (p/turn 3) (p/move 1))
+         t2 (last (take 25
+                        (iterate #(p/turn % 15) t1)))
+         t3 (-> t2 (p/move -1) (p/turn -3))]
+     [(display-turtle t2)
+      (display-turtle t3)
+      (p/almost-equals? (:position t0) (:position t3) 1E-10)
+      (p/almost-equals? (:heading t0) (:heading t3) 1E-10)]))
+  )

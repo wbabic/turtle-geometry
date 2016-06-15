@@ -3,8 +3,7 @@
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as turtle]
-            [turtle-geometry.number.units.twenty-four :as units :refer [unit]]
-            [turtle-geometry.number.complex :as complex]
+            [turtle-geometry.number :as complex]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj
