@@ -3,7 +3,7 @@
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as turtle]
-            [turtle-geometry.number :as complex :refer [one zero infinity complex unit]]
+            [turtle-geometry.number :as complex :refer [one zero i infinity complex unit]]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj

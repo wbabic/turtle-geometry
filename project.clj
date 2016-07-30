@@ -16,7 +16,9 @@
                  [cljsjs/react "15.0.2-0"]
                  [cljsjs/react-dom "15.0.2-0"]
                  [cljsjs/react-dom-server "15.0.2-0"]
-                 [reagent "0.6.0-alpha2"]
+                 [reagent "0.6.0-rc" :exclusions [cljsjs/react
+                                                  cljsjs/react-dom
+                                                  cljsjs/react-dom-server]]
 
                  [org.clojure/core.match "0.3.0-alpha4"]
                  [org.clojure/core.async "0.2.374"]

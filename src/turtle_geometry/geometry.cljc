@@ -168,6 +168,7 @@
          (p/almost-equals? unit (:unit h) epsilon))))
 
 (defn heading
+  ([] (heading (n/unit 0)))
   ([unit] (heading unit 1))
   ([unit length]
    (->Heading unit length)))

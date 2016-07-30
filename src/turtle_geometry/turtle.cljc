@@ -38,7 +38,7 @@
          (p/equals? orientation (:orientation turtle)))))
 
 (defn turtle
-  "twenty-four-fold turtle constructor"
+  "turtle constructor"
   ([] (turtle (g/position zero) (g/heading (unit 0)) (g/orientation)))
   ([point] (turtle point (g/heading (unit 0)) (g/orientation)))
   ([point heading] (turtle point heading (g/orientation)))
