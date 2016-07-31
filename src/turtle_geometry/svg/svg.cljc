@@ -1,13 +1,13 @@
 (ns turtle-geometry.svg.svg)
 
-(defn line [p1 p2]
+(defn line [p1 p2 stroke]
   (let [[x1 y1] p1
         [x2 y2] p2]
-    [:line {:x1 x1 :y1 y1 :x2 x2 :y2 y2}]))
+    [:line {:x1 x1 :y1 y1 :x2 x2 :y2 y2 :stroke stroke}]))
 
-(defn circle [center radius]
+(defn circle [center radius stroke fill]
   (let [[cx cy] center]
-    [:circle {:cx cx :cy cy :r radius}]))
+    [:circle {:cx cx :cy cy :r radius :fill fill :stroke stroke}]))
 
 (defn path [path-string]
   [:path {:d path-string}])

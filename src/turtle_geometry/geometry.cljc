@@ -142,7 +142,7 @@
   p/Heading
   (angle [_] (:angle unit))
   (length [_] length)
-  (vector [_] (p/angle->complex unit))
+  (vector [_] (n/angle->complex (:angle unit) length))
 
   p/Transformable
   (transform [heading transformation]
