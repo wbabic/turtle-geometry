@@ -46,7 +46,8 @@
 
 (defn rotate [heading orientation]
   (let [value (:value orientation)
-        {:keys [length angle]} heading]
+        {:keys [length unit]} heading
+        angle (:angle unit)]
     (g/heading (n/unit (+ (* value 90) angle)) length)))
 
 (defn render-shell [turtle stroke fill]

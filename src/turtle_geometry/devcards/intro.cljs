@@ -9,7 +9,8 @@
    [turtle-geometry.turtle :as t]
    [turtle-geometry.mappings :as m]
    [turtle-geometry.svg.utils :as svg]
-   [turtle-geometry.devcards.control-panel :as control-panel])
+   [turtle-geometry.devcards.control-panel :as control-panel]
+   [cljs.core.match :refer-macros [match]])
   (:require-macros
    [devcards.core :as dc :refer [defcard deftest defcard-rg defcard-doc]]
    [cljs.core.async.macros :refer [go]]))
@@ -21,10 +22,13 @@
   {:perspective (m/eigth resolution)
    :turtle t/initial-turtle})
 
-(defn process-channel-debug [channel]
+(defn process-channel [channel path app-state]
   (go (loop []
-        (when-let [data (<! channel)]
-          (println data)
+        (when-let [command (<! channel)]
+          (println command)
+          (swap! app-state
+                 (fn [state]
+                   (t/process-command command path state)))
           (recur)))))
 
 (defn svg-turtle
@@ -32,7 +36,7 @@
   (let [app @app-state
         turtle (p/transform (:turtle app) (:perspective app))
         channel (chan)
-        _ (process-channel-debug channel)]
+        _ (process-channel channel [:turtle] app-state)]
     [:div {:class "svg-turtle"}
      (svg/view 640 "svg-turtle"
                (svg/render-turtle turtle {:stroke "yellow" :fill "hsla(330, 100%, 50%, 0.5)"}))
@@ -75,4 +79,7 @@
   (p/transform control-panel/straight-arrow (m/half 100))
 
   (control-panel/control-panel 100 nil)
+
+  (t/process-command (t/->Forward 1) [:turtle] {:turtle (t/turtle)})
+
   )

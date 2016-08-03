@@ -19,6 +19,9 @@
     (-> turtle
         (update-in  [:heading :unit :angle] #(- %))
         (update-in  [:orientation :value] #(- %))))
+  (p/invert [turtle]
+    ;; todo
+    turtle)
 
   p/Transformable
   (p/transform [turtle transformation]
@@ -75,11 +78,36 @@
   [turtle trans]
   (g/conjugate (home->turtle turtle) trans))
 
+(defprotocol CommandProcessor
+  (process-command [command path state]))
+
 (defrecord Forward [d])
 (defrecord Turn [a])
 (defrecord Resize [s])
 (defrecord Reflect [])
 (defrecord Invert [])
+
+(extend-protocol CommandProcessor
+  Forward
+  (process-command [{d :d} path state]
+    (update-in state path #(p/move % d)))
+
+  Turn
+  (process-command [{a :a} path state]
+    (update-in state path #(p/turn % a)))
+
+  Resize
+  (process-command [{s :s} path state]
+    (update-in state path #(p/resize % s)))
+
+  Reflect
+  (process-command [_ path state]
+    (update-in state path #(p/reflect %)))
+
+  Invert
+  (process-command [_ path state]
+    (update-in state path #(p/invert %)))
+  )
 
 (comment
   (require '[turtle-geometry.turtle] :reload)
