@@ -15,6 +15,7 @@
   [c]
   (mapv round c))
 
+
 (def to-screen
   "maps a complex number into rounded coordinates"
   (comp round-c p/evaluate))
@@ -28,6 +29,12 @@
   (into
    (svg/group-svg id)
    elements))
+
+(defn point-str [[x y]]
+  (str x "," y))
+
+(defn points-str [& points]
+  (clojure.string/join " " (map point-str points)))
 
 (defn render-heading [position heading stroke]
   (svg/line (to-screen (:complex position))
@@ -57,3 +64,8 @@
            (render-heading position
                            (rotate heading orientation)
                            "green"))))
+
+(defn render-polygon [polygon options]
+  (let [positions (:positions polygon)
+        point-string (map (comp point-str to-screen :complex) positions)]
+    (svg/polygon point-string options)))

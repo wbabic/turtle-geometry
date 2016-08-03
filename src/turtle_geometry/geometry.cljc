@@ -70,6 +70,9 @@
   ([t & ts]
    (->Composition (conj ts t))))
 
+(defn prepend [composition & transforms]
+  (apply compose (concat transforms (:sequence composition))))
+
 (defrecord Reciprocal []
   p/Transform
   (p/inverse [reciprocal] reciprocal)
@@ -203,11 +206,20 @@
 
 (defrecord Circle [center radius])
 (defrecord Line [p1 p2])
+(declare polygon)
+
+(defrecord Polygon [positions]
+  p/Transformable
+  (transform [_ transformation]
+    (polygon (map #(p/transform % transformation) positions))))
 
 (defn circle
   "create circle with center at given position with given radius"
   [center-point radius]
   (->Circle center-point radius))
+
+(defn polygon [positions]
+  (->Polygon positions))
 
 (comment
   (defn toggle [conj]

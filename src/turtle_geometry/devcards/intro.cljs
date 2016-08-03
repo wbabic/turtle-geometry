@@ -8,7 +8,8 @@
    [turtle-geometry.number :as n]
    [turtle-geometry.turtle :as t]
    [turtle-geometry.mappings :as m]
-   [turtle-geometry.svg.utils :as svg])
+   [turtle-geometry.svg.utils :as svg]
+   [turtle-geometry.devcards.control-panel :as control-panel])
   (:require-macros
    [devcards.core :as dc :refer [defcard deftest defcard-rg defcard-doc]]
    [cljs.core.async.macros :refer [go]]))
@@ -20,12 +21,22 @@
   {:perspective (m/eigth resolution)
    :turtle t/initial-turtle})
 
+(defn process-channel-debug [channel]
+  (go (loop []
+        (when-let [data (<! channel)]
+          (println data)
+          (recur)))))
+
 (defn svg-turtle
   [app-state]
   (let [app @app-state
-        turtle (p/transform (:turtle app) (:perspective app))]
-    (svg/view 640 "svg-turtle"
-              (svg/render-turtle turtle {:stroke "yellow" :fill "purple"}))))
+        turtle (p/transform (:turtle app) (:perspective app))
+        channel (chan)
+        _ (process-channel-debug channel)]
+    [:div {:class "svg-turtle"}
+     (svg/view 640 "svg-turtle"
+               (svg/render-turtle turtle {:stroke "yellow" :fill "hsla(330, 100%, 50%, 0.5)"}))
+     (control-panel/control-panel 100 channel)]))
 
 (defcard-rg svg-turtle-card
   "an svg turtle in a devcard"
@@ -58,6 +69,10 @@
    [:g {:id :turtle}
     [:circle {:cx 320, :cy 320, :r 80, :fill "purple", :stroke "yellow"}]
     [:circle {:cx 320, :cy 320, :r 3, :fill "orange", :stroke "black"}]
-    [:line {:x1 320, :y1 320, :x2 321, :y2 320, :stroke "blue"}]
-    [:line {:x1 320, :y1 320, :x2 320, :y2 319, :stroke "green"}]]]
+    [:line {:x1 320, :y1 320, :x2 400, :y2 320, :stroke "blue"}]
+    [:line {:x1 320, :y1 320, :x2 320, :y2 240, :stroke "green"}]]]
+
+  (p/transform control-panel/straight-arrow (m/half 100))
+
+  (control-panel/control-panel 100 nil)
   )

@@ -15,6 +15,12 @@
 (defn eigth [resolution]
   (mapping resolution 8))
 
+(defn quarter [resolution]
+  (mapping resolution 4))
+
+(defn half [resolution]
+  (mapping resolution 2))
+
 (comment
   (require '[turtle-geometry.mappings] :reload)
   (in-ns 'turtle-geometry.mappings)

@@ -75,6 +75,11 @@
   [turtle trans]
   (g/conjugate (home->turtle turtle) trans))
 
+(defrecord Forward [d])
+(defrecord Turn [a])
+(defrecord Resize [s])
+(defrecord Reflect [])
+(defrecord Invert [])
 
 (comment
   (require '[turtle-geometry.turtle] :reload)
