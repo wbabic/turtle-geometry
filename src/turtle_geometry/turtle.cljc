@@ -113,19 +113,28 @@
   (require '[turtle-geometry.turtle] :reload)
   (in-ns 'turtle-geometry.turtle)
 
+  (p/equals? n/zero (:complex (g/position n/zero)))
   (g/heading (unit 0))
   (p/angle (g/heading (unit 0)))
   (p/length (g/heading (unit 0)))
   (p/vector (g/heading (unit 0)))
   (p/equals? one (p/vector (g/heading (unit 0))))
+  (p/equals? n/one (p/vector (g/heading (n/unit 0))))
+  (p/equals? (n/complex 2 0) (p/vector (g/heading (n/unit 0) 2)))
 
   (display-turtle initial-turtle)
   (-> (turtle)
       (p/turn 15)
       :heading p/vector)
+  (= 15
+     (-> (t/turtle)
+         (p/turn 15)
+         :heading
+         :unit
+         :angle))
 
   (n/rad->deg
-   (n/angle (-> (turtle)
+   (n/angle (-> (t/turtle)
                     (p/turn 15)
                     :heading p/vector)))
   ;;=> 15.0
@@ -156,4 +165,6 @@
       (display-turtle t3)
       (p/almost-equals? (:position t0) (:position t3) 1E-10)
       (p/almost-equals? (:heading t0) (:heading t3) 1E-10)]))
+
+
   )

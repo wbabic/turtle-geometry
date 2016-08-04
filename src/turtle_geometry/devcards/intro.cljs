@@ -81,5 +81,4 @@
   (control-panel/control-panel 100 nil)
 
   (t/process-command (t/->Forward 1) [:turtle] {:turtle (t/turtle)})
-
   )
