@@ -81,4 +81,24 @@
   (control-panel/control-panel 100 nil)
 
   (t/process-command (t/->Forward 1) [:turtle] {:turtle (t/turtle)})
+
+  (g/add (g/position n/one) (g/vector n/i))
+  (g/add (g/vector n/one) (g/vector n/i))
+  (g/difference (g/position n/one) (g/position n/i))
+
+  (g/line (g/position n/one) (g/vector n/i))
+  (g/on-line (g/line n/one n/i) n/i)
+  (g/on-line (g/line n/one n/i) (n/complex 0.5 0.5))
+
+  (g/on-line (g/perp-line n/one n/i) n/i)
+  (g/on-line (g/perp-line n/one n/i) (n/complex 0.5 0.5))
+  (g/on-line (g/perp-line n/one n/i) n/zero)
+
+  (let [l1 (g/perp-line n/zero n/one)
+        l2 (g/perp-line n/one n/i)
+        l3 (g/perp-line n/i n/zero)
+        c (g/circumcenter n/zero n/one n/i)]
+    [(g/on-line l1 c)
+     (g/on-line l2 c)
+     (g/on-line l2 c)])
   )

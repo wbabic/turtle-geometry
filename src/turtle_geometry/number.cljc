@@ -1,6 +1,7 @@
 (ns turtle-geometry.number
   "complex number implementation with infinity"
-  (:require [turtle-geometry.protocols :as p]))
+  (:require [turtle-geometry.protocols :as p])
+  (:refer-clojure :exclude [divide]))
 
 (def ^:const PI Math/PI)
 (def ^:const TAU (* 2 PI))
@@ -170,6 +171,24 @@
 
 (defn unit [angle]
   (->Unit angle))
+
+(defn add
+  ([] zero)
+  ([z] z)
+  ([z1 z2] (p/add z1 z2))
+  ([z1 z2 & zs] (reduce add (add z1 z2) zs)))
+
+(defn multiply
+  ([] one)
+  ([z] z)
+  ([z1 z2] (p/multiply z1 z2))
+  ([z1 z2 & zs] (reduce multiply (multiply z1 z2) zs)))
+
+(defn minus [z w]
+  (p/add z (p/negative w)))
+
+(defn divide [z w]
+  (p/multiply z (p/reciprocal w)))
 
 (comment
   (require '[turtle-geometry.number] :reload)

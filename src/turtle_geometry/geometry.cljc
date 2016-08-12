@@ -1,7 +1,8 @@
 (ns turtle-geometry.geometry
   "basic geometric objects and transforms provide functions of complex number"
   (:require [turtle-geometry.protocols :as p]
-            [turtle-geometry.number :as n]))
+            [turtle-geometry.number :as n])
+  (:refer-clojure :exclude [zero? keyword vector]))
 
 ;; primitive geometric transforms
 (declare translation rotation dilation affine compose position orientation reflection)
@@ -140,7 +141,39 @@
   [z]
   (->Position z))
 
-;; abstract heading - needs complex to be implemented
+(defrecord Vector [complex]
+  p/Heading
+  (angle [_] (n/rad->deg (n/angle complex)))
+  (length [_] (n/length complex))
+  (vector [_] complex)
+
+  p/Transformable
+  (transform [heading transformation]
+    (condp instance? transformation
+      Dilation (update-in heading [:length] #(* % (:ratio transformation)))
+      Rotation (update-in heading [:unit :angle] #(+ % (get-in transformation
+                                                               [:unit :angle])))
+      Translation heading
+      Reflection (update-in heading [:unit :angle] #(- %))
+      Composition
+      (let [transformations (:sequence transformation)]
+        (reduce
+         (fn [turtle trans] (p/transform turtle trans))
+         heading
+         transformations))))
+
+  p/Equality
+  (equals? [_ h]
+    (p/equals? complex (p/vector h)))
+  (almost-equals? [_ h epsilon]
+    (p/almost-equals? complex (p/vector h) epsilon)))
+
+(defn vector
+  "represent a vector by a complex number z"
+  [z]
+  (->Vector z))
+
+;; abstract heading
 (defrecord Heading [unit length]
   p/Heading
   (angle [_] (:angle unit))
@@ -160,7 +193,10 @@
         (reduce
          (fn [turtle trans] (p/transform turtle trans))
          heading
-         transformations))))
+         transformations))
+      (do
+        (println "no transform defined for heading for " transformation)
+        heading)))
 
   p/Equality
   (equals? [_ h]
@@ -175,6 +211,33 @@
   ([unit] (heading unit 1))
   ([unit length]
    (->Heading unit length)))
+
+;; operations with positions and vectors
+(defn add
+  "add a position and a heading returning a position
+  or add two headings returning another heading"
+  [p v]
+  (assert (and (or (satisfies? p/Position p)
+                   (satisfies? p/Heading p))
+               (satisfies? p/Heading v)))
+  (cond
+    (satisfies? p/Position p)
+    (let [z (p/point p)
+          v1 (p/vector v)]
+      (position (p/add z v1)))
+
+    (satisfies? p/Heading p)
+    (let [v1 (p/vector p)
+          v2 (p/vector v)]
+      (vector (p/add v1 v2)))))
+
+(defn difference
+  "difference between two positions returning a vector"
+  [p1 p2]
+  (assert (and (satisfies? p/Position p1)
+               (satisfies? p/Position p2)))
+  (vector (p/add (p/point p2)
+                 (p/negative (:complex p2)))))
 
 (defrecord Orientation [value]
   p/Orientation
@@ -205,7 +268,12 @@
   ([value] (->Orientation value)))
 
 (defrecord Circle [center radius])
-(defrecord Line [p1 p2])
+
+(defn circle
+  "create circle with center at given position with given radius"
+  [center-point radius]
+  (->Circle center-point radius))
+
 (declare polygon)
 
 (defrecord Polygon [positions]
@@ -213,13 +281,57 @@
   (transform [_ transformation]
     (polygon (map #(p/transform % transformation) positions))))
 
-(defn circle
-  "create circle with center at given position with given radius"
-  [center-point radius]
-  (->Circle center-point radius))
-
 (defn polygon [positions]
   (->Polygon positions))
+
+;; general equation of a line is
+;; az + a-bar*z-bar + b = 0
+
+(defn bar [z] (p/conjugate z))
+
+(defrecord Line-Eq [a b c])
+
+(defn line-eq [{:keys [a b c]}]
+  (fn [z] (n/add
+           (n/multiply a z)
+           (n/multiply b (bar z))
+           c)))
+
+(defn on-line [line point]
+  (p/equals? n/zero ((line-eq line) point)))
+
+;; equation of a line
+;; through two points
+;; through a point along a vector
+(defn line
+  "returns line through two points"
+  [z w]
+  (let [a (n/minus (bar z) (bar w))
+        b (n/minus w z)
+        c (n/minus (p/multiply z (bar w))
+                   (p/multiply (bar z) w))]
+    (->Line-Eq a b c)))
+
+(defn perp-line
+  "returns perpendicular line through two points"
+  [z w]
+  (let [a (n/minus (bar w) (bar z))
+        b (n/minus w z)
+        c (n/minus (p/multiply z (bar z))
+                   (p/multiply w (bar w)))]
+    (->Line-Eq a b c)))
+
+(defn circumcenter [a b c]
+  (let [ab (n/minus a b)
+        bc (n/minus b c)
+        ca (n/minus c a)
+        numer (n/add (p/multiply bc (n/length-sq a))
+                     (p/multiply ca (n/length-sq b))
+                     (p/multiply ab (n/length-sq c)))
+        denom (n/add (p/multiply bc (bar a))
+                     (p/multiply ca (bar b))
+                     (p/multiply ab (bar c)))]
+    (n/divide numer denom)))
 
 (comment
   (defn toggle [conj]

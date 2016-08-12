@@ -33,9 +33,6 @@
 (defn point-str [[x y]]
   (str x "," y))
 
-(defn points-str [& points]
-  (clojure.string/join " " (map point-str points)))
-
 (defn render-heading [position heading stroke]
   (svg/line (to-screen (:complex position))
             (to-screen (p/add (:complex position) (p/vector heading)))
