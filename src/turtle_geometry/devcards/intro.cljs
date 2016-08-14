@@ -20,7 +20,8 @@
 
 (defn initial-app-state [resolution]
   {:perspective (m/eigth resolution)
-   :turtle t/initial-turtle})
+   :turtle t/initial-turtle
+   :line (g/line-segment (g/position (n/complex 2 0)) (g/position (n/complex 0 2)))})
 
 (defn process-channel [channel path app-state]
   (go (loop []
@@ -35,11 +36,25 @@
   [app-state]
   (let [app @app-state
         turtle (p/transform (:turtle app) (:perspective app))
+        l (:line app)
+        {:keys [p1 p2]} l
+        center-of-inversion (-> (:turtle app) :position p/point)
+        i (g/inversion center-of-inversion
+                       (-> (:turtle app) :heading p/length))
+        q1 (p/transform p1 i)
+        q2 (p/transform p2 i)
+        line2 (g/line-segment q1 q2)
+        c (g/circumcircle center-of-inversion (p/point q1) (p/point q2))
+        line (p/transform (:line app) (:perspective app))
+        circle (p/transform c (:perspective app))
         channel (chan)
         _ (process-channel channel [:turtle] app-state)]
     [:div {:class "svg-turtle"}
      (svg/view 640 "svg-turtle"
-               (svg/render-turtle turtle {:stroke "yellow" :fill "hsla(330, 100%, 50%, 0.5)"}))
+               (svg/render-turtle turtle {:stroke "yellow" :fill "hsla(330, 100%, 50%, 0.2)"})
+               (svg/render-line-segment line nil)
+               (svg/render-line-segment (p/transform line2 (:perspective app)) nil)
+               (svg/render-circle circle nil))
      (control-panel/control-panel 100 channel)]))
 
 (defcard-rg svg-turtle-card
@@ -101,4 +116,37 @@
     [(g/on-line l1 c)
      (g/on-line l2 c)
      (g/on-line l2 c)])
+
+  (let [l (g/param-line n/one n/i)]
+    [(l 0)
+     (l 1)
+     (l (/ 2))])
+
+  (g/steps 10)
+  (map (g/param-line n/one n/i) (g/steps 10))
+
+  (let [l (g/line-segment (g/position n/one) (g/position n/i))]
+    (p/transform l (g/translation n/one)))
+
+  (g/circumcircle n/zero (n/complex (/ 2) 0) (n/complex 0 (/ 2)))
+  (-> (g/circumcircle n/zero (n/complex (/ 2) 0) (n/complex 0 (/ 2)))
+      :center
+      p/point)
+  (-> (g/circumcircle n/zero (n/complex (/ 2) 0) (n/complex 0 (/ 2)))
+      :radius
+      p/vector)
+
+  (let [c (g/circumcircle n/zero (n/complex (/ 2) 0) (n/complex 0 (/ 2)))
+        circle (p/transform c (g/translation n/one))]
+    (svg/render-circle circle nil))
+
+  (let [v (g/vector (n/complex (/ 4) 0))
+        p-mapping (m/eigth 640)]
+    (p/transform v p-mapping))
+
+  (let [c (g/circumcircle n/zero (n/complex (/ 2) 0) (n/complex 0 (/ 2)))
+        p-mapping (m/eigth 640)
+        circle (p/transform c p-mapping)]
+    (svg/render-circle circle nil))
+
   )

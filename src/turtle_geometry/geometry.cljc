@@ -141,6 +141,8 @@
   [z]
   (->Position z))
 
+(declare vector)
+
 (defrecord Vector [complex]
   p/Heading
   (angle [_] (n/rad->deg (n/angle complex)))
@@ -148,18 +150,19 @@
   (vector [_] complex)
 
   p/Transformable
-  (transform [heading transformation]
+  (transform [v transformation]
     (condp instance? transformation
-      Dilation (update-in heading [:length] #(* % (:ratio transformation)))
-      Rotation (update-in heading [:unit :angle] #(+ % (get-in transformation
-                                                               [:unit :angle])))
-      Translation heading
-      Reflection (update-in heading [:unit :angle] #(- %))
+      Dilation (vector (p/multiply complex (:ratio transformation)))
+      Rotation (let [u (n/unit (get-in transformation
+                                       [:unit :angle]))]
+                 (vector (p/multiply complex (p/angle->complex u))))
+      Translation v
+      Reflection (vector (p/conjugate complex))
       Composition
       (let [transformations (:sequence transformation)]
         (reduce
-         (fn [turtle trans] (p/transform turtle trans))
-         heading
+         (fn [v trans] (p/transform v trans))
+         v
          transformations))))
 
   p/Equality
@@ -267,12 +270,21 @@
   ([] (orientation 1))
   ([value] (->Orientation value)))
 
-(defrecord Circle [center radius])
+(declare circle)
+
+(defrecord Circle [center radius]
+  p/Transformable
+  (transform [_ transformation]
+    (circle (p/transform center transformation)
+            (p/transform radius transformation))))
+
+(defrecord GeneralizedCircle [p1 p2 p3])
 
 (defn circle
-  "create circle with center at given position with given radius"
-  [center-point radius]
-  (->Circle center-point radius))
+  "create circle at center position
+  with given radius vector"
+  [center radius]
+  (->Circle center radius))
 
 (declare polygon)
 
@@ -289,20 +301,28 @@
 
 (defn bar [z] (p/conjugate z))
 
-(defrecord Line-Eq [a b c])
+(defrecord Line-General [a b c])
 
-(defn line-eq [{:keys [a b c]}]
+(declare line-segment)
+(defrecord LineSegment [p1 p2]
+  p/Transformable
+  (transform [l transformation]
+    (apply line-segment (map #(p/transform % transformation) [p1 p2]))))
+
+(defn line-segment
+  "create a line segment given two complex numbers"
+  [z1 z2]
+  (->LineSegment z1 z2))
+
+(defn line-test [{:keys [a b c]}]
   (fn [z] (n/add
            (n/multiply a z)
            (n/multiply b (bar z))
            c)))
 
 (defn on-line [line point]
-  (p/equals? n/zero ((line-eq line) point)))
+  (p/equals? n/zero ((line-test line) point)))
 
-;; equation of a line
-;; through two points
-;; through a point along a vector
 (defn line
   "returns line through two points"
   [z w]
@@ -310,18 +330,34 @@
         b (n/minus w z)
         c (n/minus (p/multiply z (bar w))
                    (p/multiply (bar z) w))]
-    (->Line-Eq a b c)))
+    (->Line-General a b c)))
+
+(defn param-line
+  "returns a parameterized line"
+  [z w]
+  (fn [t]
+    (p/add (p/multiply z (- 1 t))
+           (p/multiply w t))))
+
+(defn steps
+  "n steps from 0 to 1"
+  [n]
+  (let [step (/ n)
+        f #(+ % step)]
+    (take (inc n) (iterate f 0))))
 
 (defn perp-line
-  "returns perpendicular line through two points"
+  "returns perpendicular  bisector 0f line through two points"
   [z w]
   (let [a (n/minus (bar w) (bar z))
         b (n/minus w z)
         c (n/minus (p/multiply z (bar z))
                    (p/multiply w (bar w)))]
-    (->Line-Eq a b c)))
+    (->Line-General a b c)))
 
-(defn circumcenter [a b c]
+(defn circumcenter
+  "returns the circumcenter of triangle abc"
+  [a b c]
   (let [ab (n/minus a b)
         bc (n/minus b c)
         ca (n/minus c a)
@@ -332,6 +368,13 @@
                      (p/multiply ca (bar b))
                      (p/multiply ab (bar c)))]
     (n/divide numer denom)))
+
+(defn circumcircle
+  "returns the circumcircle of three given positions"
+  [a b c]
+  (let [p (circumcenter a b c)
+        r (n/minus p a)]
+    (circle (position p) (vector r))))
 
 (comment
   (defn toggle [conj]

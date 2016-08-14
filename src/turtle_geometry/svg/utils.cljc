@@ -67,3 +67,22 @@
   (let [positions (:positions polygon)
         point-string (map (comp point-str to-screen :complex) positions)]
     (svg/polygon point-string options)))
+
+(defn render-line [p1 p2 stroke]
+  (svg/line (to-screen (:complex p1))
+            (to-screen (:complex p2))
+            stroke))
+
+(defn render-line-segment [line-segment options]
+  (let [{:keys [p1 p2]} line-segment]
+    (group :line
+           (render-position p1 "red")
+           (render-position p2 "red")
+           (render-line p1 p2 "purple"))))
+
+(defn render-circle [circle options]
+  (let [{:keys [center radius]} circle]
+    (svg/circle (-> center p/point to-screen)
+                (-> radius p/length)
+                "black"
+                "rgba(0,0,0,0)")))
