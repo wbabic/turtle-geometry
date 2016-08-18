@@ -53,7 +53,3 @@
 
 (defprotocol Transformable
   (transform [object transformation]))
-
-(defprotocol Circle
-  (center [_] "center of circle as a complex number")
-  (radius [_] "radius of circle"))

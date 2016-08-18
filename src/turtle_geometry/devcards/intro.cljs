@@ -10,7 +10,7 @@
    [turtle-geometry.mappings :as m]
    [turtle-geometry.svg.utils :as svg]
    [turtle-geometry.devcards.control-panel :as control-panel]
-   [cljs.core.match :refer-macros [match]])
+   turtle-geometry.devcards.spec)
   (:require-macros
    [devcards.core :as dc :refer [defcard deftest defcard-rg defcard-doc]]
    [cljs.core.async.macros :refer [go]]))
@@ -23,7 +23,7 @@
    :turtle t/initial-turtle
    :line (g/line-segment (g/position (n/complex 2 0)) (g/position (n/complex 0 2)))})
 
-(defn process-channel [channel path app-state]
+(defn process-command [channel path app-state]
   (go (loop []
         (when-let [command (<! channel)]
           (println command)
@@ -48,7 +48,7 @@
         line (p/transform (:line app) (:perspective app))
         circle (p/transform c (:perspective app))
         channel (chan)
-        _ (process-channel channel [:turtle] app-state)]
+        _ (process-command channel [:turtle] app-state)]
     [:div {:class "svg-turtle"}
      (svg/view 640 "svg-turtle"
                (svg/render-turtle turtle {:stroke "yellow" :fill "hsla(330, 100%, 50%, 0.2)"})
@@ -69,6 +69,10 @@
     [(p/transform (g/position n/zero) f)
      (p/transform (g/position n/one) f)
      (p/transform (g/position n/i) f)])
+
+  (let [f (m/eigth 640)
+        m (comp #(p/transform % f) g/position)]
+    (mapv m [n/zero n/one n/i]))
 
   (t/display-turtle t/initial-turtle)
 
