@@ -1,6 +1,7 @@
 (ns turtle-geometry.devcards.spec
   "specs for number geometry turtle"
-  (:require [cljs.spec :as s]))
+  (:require [cljs.spec :as s]
+            [cljs.spec.impl.gen :as gen]))
 
 ;; number
 (s/def :turtle-geometry.number/number
