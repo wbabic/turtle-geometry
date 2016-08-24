@@ -1,4 +1,5 @@
-(ns turtle-geometry.svg.svg)
+(ns turtle-geometry.svg.svg
+  (:require [clojure.string :as s]))
 
 (defn line [p1 p2 stroke]
   (let [[x1 y1] p1
@@ -78,7 +79,7 @@
     (str "q " (point->str c-vector) " " (point->str vector))))
 
 (defn reduce-path [& path-components]
-  (clojure.string/join (map as->str path-components)))
+  (s/join (map as->str path-components)))
 
 (comment
   (require '[hello-devcards.svg] :reload)

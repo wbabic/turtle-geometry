@@ -5,6 +5,8 @@
    [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]]
    [turtle-geometry.protocols :as p]
    [turtle-geometry.geometry :as g]
+   [turtle-geometry.animation :as a]
+   [turtle-geometry.devcards.ticker :as ticker]
    [turtle-geometry.number :as n]
    [turtle-geometry.turtle :as t]
    [turtle-geometry.mappings :as m]
@@ -21,7 +23,9 @@
 (defn initial-app-state [resolution]
   {:perspective (m/eigth resolution)
    :turtle t/initial-turtle
-   :line (g/line-segment (g/position (n/complex 2 0)) (g/position (n/complex 0 2)))})
+   :line (g/line-segment (g/position (n/complex 2 0)) (g/position (n/complex 0 2)))
+   :parameter 0.0
+   :counter 0})
 
 (defn process-command [channel path app-state]
   (go (loop []
@@ -32,10 +36,29 @@
                    (t/process-command command path state)))
           (recur)))))
 
+(defn render-map [state]
+  (let [{:keys [turtle line parameter perspective]} state
+        center-of-inversion (-> turtle :position p/point)
+        i (g/inversion center-of-inversion
+                       (-> turtle :heading p/length))
+        t-fn #(p/transform % i)
+        p1 (:p1 line)
+        p2 (:p2 line)
+        line-image (t-fn line)
+        q1 (t-fn p1)
+        q2 (t-fn p2)
+        c (g/circumcircle center-of-inversion (p/point q1) (p/point q2))]
+    {:turtle turtle
+     :line line
+     :endpoints [p1 p2]
+     :image-endpoints [q1 q2]
+     :image-line c}))
+
 (defn svg-turtle
   [app-state]
   (let [app @app-state
-        turtle (p/transform (:turtle app) (:perspective app))
+        p-trans #(p/transform % (:perspective app))
+        turtle (p-trans (:turtle app))
         l (:line app)
         {:keys [p1 p2]} l
         center-of-inversion (-> (:turtle app) :position p/point)
@@ -43,25 +66,34 @@
                        (-> (:turtle app) :heading p/length))
         q1 (p/transform p1 i)
         q2 (p/transform p2 i)
-        line2 (g/line-segment q1 q2)
+        pq1 (p-trans q1)
+        pq2 (p-trans q2)
         c (g/circumcircle center-of-inversion (p/point q1) (p/point q2))
-        line (p/transform (:line app) (:perspective app))
-        circle (p/transform c (:perspective app))
+        line (p-trans (:line app))
+        circle (p-trans c)
         channel (chan)
         _ (process-command channel [:turtle] app-state)]
     [:div {:class "svg-turtle"}
      (svg/view 640 "svg-turtle"
                (svg/render-turtle turtle {:stroke "yellow" :fill "hsla(330, 100%, 50%, 0.2)"})
                (svg/render-line-segment line nil)
-               (svg/render-line-segment (p/transform line2 (:perspective app)) nil)
-               (svg/render-circle circle nil))
+               (svg/render-circle circle nil)
+               (svg/render-position pq1 "yellow")
+               (svg/render-position pq2 "yellow"))
      (control-panel/control-panel 100 channel)]))
+
+(defonce app-state-atom (reagent/atom (initial-app-state 640)))
 
 (defcard-rg svg-turtle-card
   "an svg turtle in a devcard"
   (fn [app _] [svg-turtle app])
-  (reagent/atom (initial-app-state 640))
+  app-state-atom
   {:inspect-data true :history true})
+
+(let [tick-chan (ticker/second-ticker (chan))
+      animations [[[:parameter] a/sixteen-cycle]
+                  [[:counter] inc]]]
+  (ticker/process-tick tick-chan app-state-atom animations))
 
 (comment
   (in-ns 'turtle-geometry.devcards.intro)

@@ -53,3 +53,6 @@
 
 (defprotocol Transformable
   (transform [object transformation]))
+
+(defprotocol Parameterized
+  (value-for [_ parameter]))
