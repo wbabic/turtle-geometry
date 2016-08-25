@@ -38,6 +38,7 @@
 
 (defn render-map [state]
   (let [{:keys [turtle line parameter perspective]} state
+        p-trans #(p/transform % perspective)
         center-of-inversion (-> turtle :position p/point)
         i (g/inversion center-of-inversion
                        (-> turtle :heading p/length))
@@ -48,11 +49,11 @@
         q1 (t-fn p1)
         q2 (t-fn p2)
         c (g/circumcircle center-of-inversion (p/point q1) (p/point q2))]
-    {:turtle turtle
-     :line line
-     :endpoints [p1 p2]
-     :image-endpoints [q1 q2]
-     :image-line c}))
+    {:turtle (p-trans turtle)
+     :line (p-trans line)
+     :endpoints [(p-trans p1) (p-trans p2)]
+     :image-endpoints [(p-trans q1) (p-trans q2)]
+     :image-line (p-trans c)}))
 
 (defn svg-turtle
   [app-state]

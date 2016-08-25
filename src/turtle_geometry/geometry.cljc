@@ -304,17 +304,19 @@
 (defrecord Line-General [a b c])
 
 (declare line-segment)
+(declare param-line)
+
 (defrecord LineSegment [p1 p2]
   p/Transformable
   (transform [l transformation]
     (apply line-segment (map #(p/transform % transformation) [p1 p2])))
 
-  p/Paramerterized
+  p/Parameterized
   (value-for [_ parameter]
     (let [z1 (p/point p1)
           z2 (p/point p2)
           l (param-line z1 z2)]
-      (g/position (l parameter)))))
+      (position (l parameter)))))
 
 (defn line-segment
   "create a line segment given two complex numbers"
