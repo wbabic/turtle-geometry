@@ -1,7 +1,6 @@
 (ns turtle-geometry.devcards.ticker
   (:require
    [turtle-geometry.animation :as a]
-   [reagent.core :as reagent]
    [cljs.core.async :as async :refer [>! <! put! chan alts! timeout]])
   (:require-macros
    [cljs.core.async.macros :refer [go]]))
@@ -13,13 +12,12 @@
                (update-in state key function))]
       (reduce rf state animations))))
 
-(def ticker-chan (chan))
-
 (defn process-tick [tick-chan state-atom animations]
   (go (loop []
         (let [tick (<! tick-chan)]
           (swap! state-atom (apply-animations animations))
-          (recur)))))
+          (recur))))
+  tick-chan)
 
 (defn second-ticker [ticker-chan]
   (go (loop []

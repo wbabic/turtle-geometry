@@ -56,3 +56,6 @@
 
 (defprotocol Parameterized
   (value-for [_ parameter]))
+
+(defprotocol Renderable
+  (render [_ style]))

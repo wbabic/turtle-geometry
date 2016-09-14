@@ -14,11 +14,26 @@
    [turtle-geometry.devcards.control-panel :as control-panel]
    turtle-geometry.devcards.spec)
   (:require-macros
+   [reagent.ratom :refer [reaction]]
    [devcards.core :as dc :refer [defcard deftest defcard-rg defcard-doc]]
    [cljs.core.async.macros :refer [go]]))
 
 (defcard story
-  "intro to turtle geometry in clojurescript")
+  "Introduction to turtle geometry.")
+
+;; svg components
+(defn turtle-svg-comp [turtle p-trans]
+  (svg/render-turtle
+   (p-trans turtle)
+   {:stroke "yellow" :fill "hsla(330, 100%, 50%, 0.2)"}))
+
+(defn line-comp [line-seg p-trans]
+  (svg/render-line-segment
+   (p-trans line-seg) nil))
+
+(defn position-comp [position p-trans]
+  (svg/render-position
+   (p-trans position) nil))
 
 (defn initial-app-state [resolution]
   {:perspective (m/eigth resolution)
@@ -27,61 +42,43 @@
    :parameter 0.0
    :counter 0})
 
-(defn process-command [channel path app-state]
+(defn process-command [turtle-channel app-state-atom key]
   (go (loop []
-        (when-let [command (<! channel)]
+        (when-let [command (<! turtle-channel)]
           (println command)
-          (swap! app-state
-                 (fn [state]
-                   (t/process-command command path state)))
-          (recur)))))
-
-(defn render-map [state]
-  (let [{:keys [turtle line parameter perspective]} state
-        p-trans #(p/transform % perspective)
-        center-of-inversion (-> turtle :position p/point)
-        i (g/inversion center-of-inversion
-                       (-> turtle :heading p/length))
-        t-fn #(p/transform % i)
-        p1 (:p1 line)
-        p2 (:p2 line)
-        line-image (t-fn line)
-        q1 (t-fn p1)
-        q2 (t-fn p2)
-        c (g/circumcircle center-of-inversion (p/point q1) (p/point q2))]
-    {:turtle (p-trans turtle)
-     :line (p-trans line)
-     :endpoints [(p-trans p1) (p-trans p2)]
-     :image-endpoints [(p-trans q1) (p-trans q2)]
-     :image-line (p-trans c)}))
+          (swap! app-state-atom
+                 (fn [app-state]
+                   (update-in app-state key
+                              #(t/process-command command %))))
+          (recur))))
+  turtle-channel)
 
 (defn svg-turtle
   [app-state]
-  (let [app @app-state
-        p-trans #(p/transform % (:perspective app))
-        turtle (p-trans (:turtle app))
-        l (:line app)
-        {:keys [p1 p2]} l
-        center-of-inversion (-> (:turtle app) :position p/point)
-        i (g/inversion center-of-inversion
-                       (-> (:turtle app) :heading p/length))
-        q1 (p/transform p1 i)
-        q2 (p/transform p2 i)
-        pq1 (p-trans q1)
-        pq2 (p-trans q2)
-        c (g/circumcircle center-of-inversion (p/point q1) (p/point q2))
-        line (p-trans (:line app))
-        circle (p-trans c)
-        channel (chan)
-        _ (process-command channel [:turtle] app-state)]
-    [:div {:class "svg-turtle"}
-     (svg/view 640 "svg-turtle"
-               (svg/render-turtle turtle {:stroke "yellow" :fill "hsla(330, 100%, 50%, 0.2)"})
-               (svg/render-line-segment line nil)
-               (svg/render-circle circle nil)
-               (svg/render-position pq1 "yellow")
-               (svg/render-position pq2 "yellow"))
-     (control-panel/control-panel 100 channel)]))
+  (let [tick-chan (ticker/second-ticker (chan))
+        animations [[[:parameter] a/sixteen-cycle]
+                    [[:counter] inc]]
+        turtle-channel (process-command (chan) app-state [:turtle])
+        tick-chan (ticker/process-tick tick-chan app-state animations)
+        turtle-cursor (reagent/cursor app-state [:turtle])
+        line-cursor (reagent/cursor app-state [:line])
+        param-cursor (reagent/cursor app-state [:parameter])
+        perspective-cursor (reagent/cursor app-state [:perspective])
+        perspective-fn #(p/transform % @perspective-cursor)
+        transform-fn (reaction
+                      (let [{:keys [position heading]} @turtle-cursor]
+                        (g/inversion (p/point position) (p/length heading))))
+        point (reaction
+               (p/value-for @line-cursor @param-cursor))
+        image-point (reaction (p/transform @point @transform-fn))]
+    (fn [app-state]
+      [:div {:class "svg-turtle"}
+       (svg/view 640 "svg-turtle"
+                 [turtle-svg-comp @turtle-cursor perspective-fn]
+                 [line-comp @line-cursor perspective-fn]
+                 [position-comp @point perspective-fn]
+                 [position-comp @image-point perspective-fn])
+       (control-panel/control-panel 100 turtle-channel)])))
 
 (defonce app-state-atom (reagent/atom (initial-app-state 640)))
 
@@ -90,11 +87,6 @@
   (fn [app _] [svg-turtle app])
   app-state-atom
   {:inspect-data true :history true})
-
-(let [tick-chan (ticker/second-ticker (chan))
-      animations [[[:parameter] a/sixteen-cycle]
-                  [[:counter] inc]]]
-  (ticker/process-tick tick-chan app-state-atom animations))
 
 (comment
   (in-ns 'turtle-geometry.devcards.intro)
@@ -131,8 +123,6 @@
   (p/transform control-panel/straight-arrow (m/half 100))
 
   (control-panel/control-panel 100 nil)
-
-  (t/process-command (t/->Forward 1) [:turtle] {:turtle (t/turtle)})
 
   (g/add (g/position n/one) (g/vector n/i))
   (g/add (g/vector n/one) (g/vector n/i))

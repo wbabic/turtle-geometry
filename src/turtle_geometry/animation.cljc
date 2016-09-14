@@ -3,7 +3,10 @@
 (defn cycle-one [num-steps]
   (let [step-size (/ num-steps)]
     (fn [p]
-      (mod (+ step-size p) 1))))
+      (let [next (+ step-size p)]
+        (if (= 1 next)
+            1
+            (mod next 1))))))
 
 (def ten-cycle (cycle-one 10))
 (def twelve-cycle (cycle-one 12))
@@ -17,6 +20,6 @@
 
   (take 12 (iterate ten-cycle 0))
   (take 14 (iterate twelve-cycle 0))
-  (take 18 (iterate sixteen-cycle 0))
+  (take 17 (iterate sixteen-cycle 0))
   (take 26 (iterate twentyfour-cycle 0))
   )

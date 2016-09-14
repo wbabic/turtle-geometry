@@ -12,20 +12,20 @@
                                                   cljsjs/react-dom
                                                   cljsjs/react-dom-server]]
                  [sablono "0.7.4"]
-                 [cljsjs/react "15.2.1-1"]
-                 [cljsjs/react-dom "15.2.1-1"]
-                 [cljsjs/react-dom-server "15.2.1-1"]
+                 [cljsjs/react-with-addons "15.3.1-0"]
+                 [cljsjs/react-dom "15.3.1-0"]
+                 [cljsjs/react-dom-server "15.3.1-0"]
                  [reagent "0.6.0-rc" :exclusions [cljsjs/react
                                                   cljsjs/react-dom
                                                   cljsjs/react-dom-server]]
-                 [org.clojure/core.async "0.2.385"]]
+                 [org.clojure/core.async "0.2.391"]]
 
   :profiles
   {:dev
    {:dependencies [[org.clojure/test.check "0.9.0"]]}}
 
   :plugins [[lein-cljsbuild "1.1.3"]
-            [lein-figwheel "0.5.4-7"
+            [lein-figwheel "0.5.7"
              :exclusions [org.clojure/clojure
                           ring/ring-core joda-time
                           org.clojure/tools.reader]]]

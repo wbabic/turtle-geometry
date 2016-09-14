@@ -356,7 +356,7 @@
     (take (inc n) (iterate f 0))))
 
 (defn perp-line
-  "returns perpendicular  bisector 0f line through two points"
+  "returns perpendicular bisector of line through two points"
   [z w]
   (let [a (n/minus (bar w) (bar z))
         b (n/minus w z)

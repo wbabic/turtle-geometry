@@ -79,7 +79,7 @@
   (g/conjugate (home->turtle turtle) trans))
 
 (defprotocol CommandProcessor
-  (process-command [command path state]))
+  (process-command [command turtle]))
 
 (defrecord Forward [d])
 (defrecord Turn [a])
@@ -89,24 +89,24 @@
 
 (extend-protocol CommandProcessor
   Forward
-  (process-command [{d :d} path state]
-    (update-in state path #(p/move % d)))
+  (process-command [{d :d} turtle]
+    (p/move turtle d))
 
   Turn
-  (process-command [{a :a} path state]
-    (update-in state path #(p/turn % a)))
+  (process-command [{a :a} turtle]
+    (p/turn turtle a))
 
   Resize
-  (process-command [{s :s} path state]
-    (update-in state path #(p/resize % s)))
+  (process-command [{s :s} turtle]
+    (p/resize turtle s))
 
   Reflect
-  (process-command [_ path state]
-    (update-in state path #(p/reflect %)))
+  (process-command [_ turtle]
+    (p/reflect turtle))
 
   Invert
-  (process-command [_ path state]
-    (update-in state path #(p/invert %)))
+  (process-command [_ turtle]
+    (p/invert turtle))
   )
 
 (comment
