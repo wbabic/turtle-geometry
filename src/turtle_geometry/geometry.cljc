@@ -80,7 +80,11 @@
   (p/transform-fn [_]
     #(p/reciprocal %)))
 
-(def Inversion (compose (->Reciprocal) (->Reflection)))
+(defrecord Inversion [circle]
+  p/Transform
+  (p/inverse [inversion] inversion)
+  (p/transform-fn [_]
+    (comp p/conjugate p/reciprocal)))
 
 ;; todo
 (defrecord Mobius [a b c d])
@@ -112,11 +116,15 @@
   [c d]
   (->Affine c d))
 
+(declare unit-circle)
+
 (defn inversion
-  ([] Inversion)
-  ([center radius]
-   (let [f (compose (dilation radius) (translation center))]
-     (conjugate f Inversion))))
+  ([] (inversion unit-circle))
+  ([circle] (->Inversion circle)))
+
+(comment
+  (let [f (compose (dilation radius) (translation center))]
+    (conjugate f (->Inversion))))
 
 (defn mobius
   [a b c d] (->Mobius a b c d))
@@ -276,15 +284,17 @@
   p/Transformable
   (transform [_ transformation]
     (circle (p/transform center transformation)
-            (p/transform radius transformation))))
+            (p/length (p/transform (vector (n/complex radius 0)) transformation)))))
 
 (defrecord GeneralizedCircle [p1 p2 p3])
 
 (defn circle
   "create circle at center position
-  with given radius vector"
+  with given radius"
   [center radius]
   (->Circle center radius))
+
+(def unit-circle (circle (position n/zero) 1))
 
 (declare polygon)
 
@@ -305,21 +315,38 @@
 
 (declare line-segment)
 (declare param-line)
+(declare line)
+(declare on-line)
+(declare circumcircle)
 
 (defrecord LineSegment [p1 p2]
-  p/Transformable
-  (transform [l transformation]
-    (apply line-segment (map #(p/transform % transformation) [p1 p2])))
-
   p/Parameterized
   (value-for [_ parameter]
     (let [z1 (p/point p1)
           z2 (p/point p2)
           l (param-line z1 z2)]
-      (position (l parameter)))))
+      (position (l parameter))))
+
+  p/Transformable
+  (transform [l transformation]
+    (condp instance? transformation
+      Inversion
+      (let [{:keys [center radius]} (:circle transformation)
+            line-eq (apply line (map p/point [p1 p2]))
+            [q1 q2] (mapv #(p/transform % transformation) [p1 p2])]
+        (println "calculating inversion of a line segment")
+        (println "center of inversion: " center " radius: " radius)
+        ;; are center p1 p2 collinear?
+        (if (on-line line-eq center)
+          (apply line-segment [q1 q2])
+          (let [c (apply circumcircle center (map p/point [q1 q2]))]
+            c)))
+      (do
+        (println "in else case")
+        (apply line-segment (map #(p/transform % transformation) [p1 p2]))))))
 
 (defn line-segment
-  "create a line segment given two complex numbers"
+  "create a line segment given two complex positions"
   [z1 z2]
   (->LineSegment z1 z2))
 
@@ -333,7 +360,7 @@
   (p/equals? n/zero ((line-test line) point)))
 
 (defn line
-  "returns line through two points"
+  "returns the general line through two points"
   [z w]
   (let [a (n/minus (bar z) (bar w))
         b (n/minus w z)
@@ -383,9 +410,16 @@
   [a b c]
   (let [p (circumcenter a b c)
         r (n/minus p a)]
-    (circle (position p) (vector r))))
+    (circle (position p) (n/length r))))
 
 (comment
+  (require '[turtle-geometry.geometry] :reload)
+  (in-ns 'turtle-geometry.geometry)
+  (use 'clojure.repl)
+
+  (line-segment (position n/one) (position  n/i))
+  (p/transform (line-segment (position n/one) (position  n/i)) (translation n/one))
+
   (defn toggle [conj]
     (if (true? conj) false true))
 

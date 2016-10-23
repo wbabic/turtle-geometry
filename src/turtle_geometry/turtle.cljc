@@ -50,6 +50,35 @@
 
 (def initial-turtle (turtle))
 
+(defn shell
+  "the shell of a turtle as a circle"
+  [turtle]
+  (g/circle (:position turtle) (p/length (:heading turtle))))
+
+(defn heading
+  "the heading of a turtle as a line"
+  [turtle]
+  (g/line-segment (:position turtle)
+                  (g/position
+                   (p/add
+                    (p/point (:position turtle))
+                    (p/vector (:heading turtle))))))
+
+(defn heading-perp
+  "the perpendicular heading of a turtle as a line
+that depends on orientation"
+  [turtle]
+  (let [{:keys [position heading orientation]} turtle
+        {:keys [length unit]} heading
+        value (:value orientation)
+        angle (:angle unit)
+        perp-heading (g/heading (n/unit (+ (* value 90) angle)) length)]
+    (g/line-segment (:position turtle)
+                    (g/position
+                     (p/add
+                      (p/point (:position turtle))
+                      (p/vector perp-heading))))))
+
 (defn display-turtle
   [{:keys [position heading orientation]}]
   {:position (p/evaluate (p/point position))

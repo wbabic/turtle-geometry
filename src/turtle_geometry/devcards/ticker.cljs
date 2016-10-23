@@ -19,12 +19,15 @@
           (recur))))
   tick-chan)
 
-(defn second-ticker [ticker-chan]
+(defn interval-ticker [ticker-chan msecs]
   (go (loop []
-        (<! (timeout 1000))
+        (<! (timeout msecs))
         (>! ticker-chan :tick)
         (recur)))
   ticker-chan)
+
+(defn second-ticker [ticker-chan]
+  (interval-ticker ticker-chan 1000))
 
 (comment
   (in-ns 'turtle-geometry.devcards.ticker)

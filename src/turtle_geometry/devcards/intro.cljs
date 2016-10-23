@@ -10,7 +10,7 @@
    [turtle-geometry.number :as n]
    [turtle-geometry.turtle :as t]
    [turtle-geometry.mappings :as m]
-   [turtle-geometry.svg.utils :as svg]
+   [turtle-geometry.svg.geometry :as svg]
    [turtle-geometry.devcards.control-panel :as control-panel]
    turtle-geometry.devcards.spec)
   (:require-macros
@@ -23,17 +23,19 @@
 
 ;; svg components
 (defn turtle-svg-comp [turtle p-trans]
-  (svg/render-turtle
+  (svg/render
    (p-trans turtle)
-   {:stroke "yellow" :fill "hsla(330, 100%, 50%, 0.2)"}))
+   :stroke "yellow" :fill "hsla(330, 100%, 50%, 0.2)"))
 
 (defn line-comp [line-seg p-trans]
-  (svg/render-line-segment
-   (p-trans line-seg) nil))
+  (let [{:keys [p1 p2]} line-seg]
+    (svg/group :line
+               (svg/render (p-trans line-seg) :stroke "orange")
+               (svg/render (p-trans p1) :fill "red")
+               (svg/render (p-trans p2) :fill "red"))))
 
 (defn position-comp [position p-trans]
-  (svg/render-position
-   (p-trans position) nil))
+  (svg/render (p-trans position) :fill "purple"))
 
 (defn initial-app-state [resolution]
   {:perspective (m/eigth resolution)
@@ -67,7 +69,7 @@
         perspective-fn #(p/transform % @perspective-cursor)
         transform-fn (reaction
                       (let [{:keys [position heading]} @turtle-cursor]
-                        (g/inversion (p/point position) (p/length heading))))
+                        (g/inversion (g/circle position heading))))
         point (reaction
                (p/value-for @line-cursor @param-cursor))
         image-point (reaction (p/transform @point @transform-fn))]
@@ -82,8 +84,9 @@
 
 (defonce app-state-atom (reagent/atom (initial-app-state 640)))
 
-(defcard-rg svg-turtle-card
-  "an svg turtle in a devcard"
+(defcard-rg inversion-of-a-line
+  "Inversion of a line in the shell of a turtle with an animated point moving on the line,
+along with it's image."
   (fn [app _] [svg-turtle app])
   app-state-atom
   {:inspect-data true :history true})
@@ -111,8 +114,8 @@
      (p/vector (:heading turtle))])
 
   (let [turtle (p/transform t/initial-turtle (m/eigth 640))]
-    (svg/view 640 "board"
-              (svg/render-turtle turtle {:stroke "yellow" :fill "purple"})))
+    (svgview 640 "board"
+             (svg/render turtle {:stroke "yellow" :fill "purple"})))
   [:svg {:width 640, :height 640, :class "board"}
    [:g {:id :turtle}
     [:circle {:cx 320, :cy 320, :r 80, :fill "purple", :stroke "yellow"}]
@@ -165,7 +168,7 @@
 
   (let [c (g/circumcircle n/zero (n/complex (/ 2) 0) (n/complex 0 (/ 2)))
         circle (p/transform c (g/translation n/one))]
-    (svg/render-circle circle nil))
+    (svg/render circle nil))
 
   (let [v (g/vector (n/complex (/ 4) 0))
         p-mapping (m/eigth 640)]
@@ -174,6 +177,6 @@
   (let [c (g/circumcircle n/zero (n/complex (/ 2) 0) (n/complex 0 (/ 2)))
         p-mapping (m/eigth 640)
         circle (p/transform c p-mapping)]
-    (svg/render-circle circle nil))
+    (svg/render circle nil))
 
   )

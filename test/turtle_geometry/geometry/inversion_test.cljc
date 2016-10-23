@@ -3,7 +3,8 @@
   (:require [turtle-geometry.protocols :as p]
             [turtle-geometry.geometry :as g]
             [turtle-geometry.turtle :as turtle]
-            [turtle-geometry.number :as complex]
+            [turtle-geometry.number :as n]
+            [turtle-geometry.mappings :as m]
             [clojure.test.check :as tc]
             [clojure.test.check.generators :as gen]
             #?@(:clj
@@ -29,7 +30,7 @@
 ;; generate a complex number
 
 (def complex-gen
-  (gen/fmap (partial apply complex/complex)
+  (gen/fmap (partial apply n/complex)
             (gen/vector gen/ratio 2)))
 
 (def point-gen
@@ -43,9 +44,27 @@
 (comment
   (require '[turtle-geometry.geometry.inversion-test] :reload)
   (in-ns 'turtle-geometry.geometry.inversion-test)
+  (use 'clojure.repl)
   (clojure.test/run-tests)
   (clojure.pprint/pprint (gen/sample circle-gen))
-  (complex/length (complex/complex 1 1))
-  (complex/difference complex/one complex/i)
-  (complex/distance complex/one complex/i)
+
+  (n/length (n/complex 1 1))
+  (n/difference n/one n/i)
+  (n/distance n/one n/i)
+
+  (let [l (g/line-segment (g/position n/i)
+                          (g/position n/one))
+        t (g/translation n/one)]
+    (p/transform l t))
+
+  (let [l (g/line-segment (g/position (n/complex 0 2))
+                          (g/position (n/complex 2 0)))
+        t (g/inversion)]
+    (p/transform l t))
+
+  (let [p1 (g/position n/one)
+        p2 (g/position n/i)
+        i (g/inversion)
+        l (g/line-segment p1 p2)]
+    (p/transform l i))
   )

@@ -52,6 +52,8 @@
 (defrecord Q [c-point point])
 (defrecord q [c-vector vector])
 
+(defrecord A [rx ry x-axis-rotation large-arc-flag sweep-flag pi pf])
+
 (defprotocol Path
   (as->str [path-component]))
 
@@ -76,13 +78,20 @@
     (str "Q " (point->str c-point) " " (point->str point)))
   q
   (as->str [{c-vector :c-vector vector :vector}]
-    (str "q " (point->str c-vector) " " (point->str vector))))
+    (str "q " (point->str c-vector) " " (point->str vector)))
+  A
+  (as->str [{rx :rx ry :ry large-arc-flag :large-arc-flag
+             sweep-flag :sweep-flag pi :pi  pf :pf}]
+    (str (as->str (->M pi)) "A " rx " " ry " " large-arc-flag " " sweep-flag " "
+         (point->str pf))))
 
 (defn reduce-path [& path-components]
   (s/join (map as->str path-components)))
 
 (comment
-  (require '[hello-devcards.svg] :reload)
-  (in-ns 'hello-devcards.svg)
+  (require '[turtle-geometry.svg.svg] :reload)
+  (in-ns 'turtle-geometry.svg.svg)
+  (use 'clojure.repl)
+
 
   )

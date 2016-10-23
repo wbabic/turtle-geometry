@@ -8,7 +8,7 @@
    [turtle-geometry.number :as n]
    [turtle-geometry.turtle :as t]
    [turtle-geometry.mappings :as m]
-   [turtle-geometry.svg.utils :as svg])
+   [turtle-geometry.svg.geometry :as svg])
   (:require-macros
    [devcards.core :as dc :refer [defcard deftest defcard-rg defcard-doc]]
    [cljs.core.async.macros :refer [go]]))
@@ -32,8 +32,7 @@
     (g/polygon positions)))
 
 (defn send!
-  "Send information from the user to the message queue.
-  The message must be a record which implements the Processor protocol."
+  "Send information from the user to the message queue."
   [channel message]
   (fn [dom-event]
     (put! channel message)
@@ -45,15 +44,15 @@
         m2 (g/prepend half (g/reflection))]
     [:div {:class "control-panel"}
      (svg/view resolution "control-panel"
-               (svg/render-polygon (p/transform turn-arrow half)
-                                   {:class "left-arrow"
-                                    :on-click (send! channel (t/->Turn 15))})
-               (svg/render-polygon (p/transform turn-arrow m2)
-                                   {:class "right-arrow"
-                                    :on-click (send! channel (t/->Turn -15))})
-               (svg/render-polygon (p/transform straight-arrow half)
-                                   {:class "forward-arrow"
-                                    :on-click (send! channel (t/->Forward 1))})
-               (svg/render-polygon (p/transform straight-arrow m1)
-                                   {:class "backward-arrow"
-                                    :on-click (send! channel (t/->Forward -1))}))]))
+               (svg/render (p/transform turn-arrow half)
+                           :class "left-arrow"
+                           :on-click (send! channel (t/->Turn 15)))
+               (svg/render (p/transform turn-arrow m2)
+                           :class "right-arrow"
+                           :on-click (send! channel (t/->Turn -15)))
+               (svg/render (p/transform straight-arrow half)
+                           :class "forward-arrow"
+                           :on-click (send! channel (t/->Forward 1)))
+               (svg/render (p/transform straight-arrow m1)
+                           :class "backward-arrow"
+                           :on-click (send! channel (t/->Forward -1))))]))
